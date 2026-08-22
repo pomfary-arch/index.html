@@ -3,93 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة تخمين الرقم</title>
+    <title>لعبة المغامرة ثلاثية الأبعاد</title>
     <style>
         body {
-            font-family: Tahoma, sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #2d2b42);
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            overflow: hidden;
+            background: #111;
+            font-family: Tahoma, sans-serif;
+            user-select: none;
         }
-        .game-container {
-            background: #2a283e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            text-align: center;
-            width: 320px;
+        #ui {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 20px;
+            border: 2px solid #4ecca3;
         }
-        h2 { margin-bottom: 15px; color: #4ecca3; }
-        input {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 2px solid #444;
-            background: #1f1e2e;
-            color: white;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 18px;
-        }
-        button {
-            background: #4ecca3;
-            color: #1e1e2f;
-            border: none;
+        #controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #aaa;
+            background: rgba(0, 0, 0, 0.7);
             padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
         }
-        button:hover { background: #45b08c; }
-        #message { margin-top: 15px; font-weight: bold; font-size: 15px; }
     </style>
+    <!-- استدعاء مكتبة Three.js الشهيرة للرسومات ثلاثية الأبعاد -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div class="game-container">
-        <h2>لعبة التخمين الذكية</h2>
-        <p>خمن رقماً بين <strong>1 و 100</strong></p>
-        <input type="number" id="userGuess" min="1" max="100" placeholder="أدخل رقمك">
-        <br>
-        <button onclick="checkGuess()">تحقق</button>
-        <div id="message"></div>
-    </div>
+    <div id="ui">النقاط: <span id="score">0</span></div>
+    <div id="controls-hint">استخدم أزرار <strong>W, A, S, D</strong> أو الأسهم للحركة، وزر <strong>المسافة (Space)</strong> للقفز!</div>
 
     <script>
-        // توليد رقم عشوائي بين 1 و 100
-        let randomNumber = Math.floor(Math.random() * 100) + 1;
-        let attempts = 0;
+        // إعداد المشهد والكاميرا والمحرك الرسومي
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
 
-        function checkGuess() {
-            const userGuess = Number(document.getElementById('userGuess').value);
-            const message = document.getElementById('message');
-            
-            if (!userGuess || userGuess < 1 || userGuess > 100) {
-                message.style.color = '#ff6b6b';
-                message.textContent = 'الرجاء إدخال رقم صحيح بين 1 و 100!';
-                return;
-            }
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-            attempts++;
+        // إضاءة خفيفة في العالم
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
 
-            if (userGuess === randomNumber) {
-                message.style.color = '#4ecca3';
-                message.textContent = `🎉 مبروك! فزت بعد ${attempts} محاولة. الرقم كان ${randomNumber}.`;
-            } else if (userGuess < randomNumber) {
-                message.style.color = '#f39c12';
-                message.textContent = '📈 الرقم صغير جداً، اصعد للأعلى!';
-            } else {
-                message.style.color = '#3498db';
-                message.textContent = '📉 الرقم كبير جداً، انزل للأسفل!';
-            }
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(0, 20, 10);
+        scene.add(pointLight);
+
+        // أرضية المشهد (المكان الذي نمشي عليه)
+        const floorGeo = new THREE.PlaneGeometry(100, 100);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x16213e, roughness: 0.8 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // بناء اللاعب (مكعب يمثل الشخصية)
+        const playerGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        const playerMat = new THREE.MeshStandardMaterial({ color: 0x4ecca3 });
+        const player = new THREE.Mesh(playerGeo, playerMat);
+        player.position.set(0, 0.75, 0);
+        scene.add(player);
+
+        // إضافة أهداف نجمعها في العالم (كرات ذهبية مضيئة)
+        const collectibles = [];
+        const collectibleGeo = new THREE.SphereGeometry(0.6, 16, 16);
+        const collectibleMat = new THREE.MeshStandardMaterial({ color: 0xf39c12, emissive: 0xf39c12 });
+
+        for (let i = 0; i < 15; i++) {
+            const coin = new THREE.Mesh(collectibleGeo, collectibleMat);
+            coin.position.set(
+                (Math.random() - 0.5) * 60,
+                0.6,
+                (Math.random() - 0.5) * 60
+            );
+            scene.add(coin);
+            collectibles.push(coin);
         }
-    </script>
 
+        // متغيرات الحركة والتحكم
+        let score = 0;
+        const keys = {};
+        let playerVelocityY = 0;
+        const gravity = 0.015;
+        let isJumping = false;
+
+        window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+        // حلقة اللعبة والتحديث المستمر
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // حركة اللاعب عبر الكيبورد
+            const speed = 0.2;
+            if (keys['w'] || keys['arrowup']) player.position.z -= speed;
+            if (keys['s'] || keys['arrowdown']) player.position.z += speed;
+            if (keys['a'] || keys['arrowleft']) player.position.x -= speed;
+            if (keys['d'] || keys['arrowright']) player.position.x += speed;
+
+            // القفز والجاذبية
+            if ((keys[' '] || keys['arrowup']) && !isJumping && player.position.y <= 0.75) {
+                playerVelocityY = 0.3;
+                isJumping = true;
+            }
+
+            player.position.y += playerVelocityY;
+            if (player.position.y > 0.75) {
+                playerVelocityY -= gravity;
+            } else {
+                player.position.y = 0.75;
+                playerVelocityY = 0;
+                isJumping = false;
+            }
+
+            // تتبع الكاميرا للاعب (تتحرك معه وكأنها خلفه ومنظور رؤية)
+            camera.position.x = player.position.x;
+            camera.position.y = player.position.y + 6;
+            camera.position.z = player.position.z + 10;
+            camera.lookAt(player.position.x, player.position.y, player.position.z);
+
+            // فحص اصطدام اللاعب بالنقاط وجمعها
+            collectibles.forEach((coin, index) => {
+                // دوران جمالي للعملات
+                coin.rotation.y += 0.03;
+
+                // حساب المسافة للاصطدام
+                const distance = player.position.distanceTo(coin.position);
+                if (distance < 1.5) {
+                    scene.remove(coin);
+                    collectibles.splice(index, 1);
+                    score += 10;
+                    document.getElementById('score').textContent = score;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // التكيف مع حجم الشاشة
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
