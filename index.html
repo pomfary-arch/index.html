@@ -2,164 +2,219 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المغامرة ثلاثية الأبعاد</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة علي جاسم الاستراتيجية</title>
     <style>
+        * { box-sizing: border-box; user-select: none; }
         body {
             margin: 0;
-            overflow: hidden;
-            background: #111;
-            font-family: Tahoma, sans-serif;
-            user-select: none;
-        }
-        #ui {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            padding: 0;
+            background: #12121c;
             color: #fff;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 20px;
-            border: 2px solid #4ecca3;
+            font-family: Tahoma, sans-serif;
+            overflow: hidden;
         }
-        #controls-hint {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #aaa;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
+        /* شريط الموارد العلوي */
+        #header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(20, 20, 35, 0.95);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 5px;
+            border-bottom: 2px solid #e67e22;
+            z-index: 100;
             font-size: 14px;
+            font-weight: bold;
         }
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .gold { color: #f1c40f; }
+        .elixir { color: #9b59b6; }
+
+        /* ساحة القرية */
+        #game-board {
+            position: absolute;
+            top: 55px;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            background: #1b263b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .village-hub {
+            background: #0f172a;
+            border: 3px solid #3b82f6;
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-bottom: 15px;
+        }
+        .village-hub h2 { margin: 5px 0 10px 0; color: #60a5fa; font-size: 18px; }
+        
+        #battle-log {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 10px;
+            width: 90%;
+            max-width: 350px;
+            height: 90px;
+            overflow-y: auto;
+            font-size: 12px;
+            text-align: right;
+            color: #cbd5e1;
+        }
+
+        /* شريط الأزرار السفلي للتحكم والتدريب والهجوم */
+        #footer-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 2px solid #334155;
+            z-index: 100;
+        }
+        .action-btn {
+            background: #1e293b;
+            color: #fff;
+            border: 1px solid #64748b;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 4px;
+            text-align: center;
+            transition: 0.1s;
+        }
+        .action-btn:active { background: #3b82f6; }
     </style>
-    <!-- استدعاء مكتبة Three.js الشهيرة للرسومات ثلاثية الأبعاد -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="ui">النقاط: <span id="score">0</span></div>
-    <div id="controls-hint">استخدم أزرار <strong>W, A, S, D</strong> أو الأسهم للحركة، وزر <strong>المسافة (Space)</strong> للقفز!</div>
+    <!-- شريط الموارد -->
+    <div id="header-bar">
+        <div class="resource gold">💰 الذهب: <span id="gold-count">500</span></div>
+        <div class="resource elixir">🧪 الإكسير: <span id="elixir-count">300</span></div>
+        <div class="resource">🛡️ الجيش: <span id="army-count">0</span>/20</div>
+    </div>
+
+    <!-- ساحة اللعب والقرية -->
+    <div id="game-board">
+        <div class="village-hub">
+            <h2>🏰 قرية القائد علي جاسم</h2>
+            <p>مستوى القرية (Town Hall): <span id="th-level">1</span></p>
+            <p>الجنود الجاهزون: <span id="troops-ready">0</span> جندي</p>
+        </div>
+
+        <div id="battle-log">
+            [سجل الأحداث]: أهلاً بك يا قائد علي في قريتك الجديدة! ابدأ بجمع الموارد وتدريب الجيش.
+        </div>
+    </div>
+
+    <!-- الأزرار السفلية للتحكم بالهاتف -->
+    <div id="footer-controls">
+        <button class="action-btn" onclick="collectResources()">جمع الموارد</button>
+        <button class="action-btn" onclick="trainTroop()">تدريب جندي</button>
+        <button class="action-btn" onclick="upgradeTH()">ترقية التاون</button>
+        <button class="action-btn" style="background: #b91c1c; border-color: #ef4444;" onclick="startAttack()">هجوم!</button>
+    </div>
 
     <script>
-        // إعداد المشهد والكاميرا والمحرك الرسومي
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
+        let gold = 500;
+        let elixir = 300;
+        let armyCount = 0;
+        let thLevel = 1;
+        let troopsReady = 0;
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        const maxArmy = 20;
 
-        // إضاءة خفيفة في العالم
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 1);
-        pointLight.position.set(0, 20, 10);
-        scene.add(pointLight);
-
-        // أرضية المشهد (المكان الذي نمشي عليه)
-        const floorGeo = new THREE.PlaneGeometry(100, 100);
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x16213e, roughness: 0.8 });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        scene.add(floor);
-
-        // بناء اللاعب (مكعب يمثل الشخصية)
-        const playerGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-        const playerMat = new THREE.MeshStandardMaterial({ color: 0x4ecca3 });
-        const player = new THREE.Mesh(playerGeo, playerMat);
-        player.position.set(0, 0.75, 0);
-        scene.add(player);
-
-        // إضافة أهداف نجمعها في العالم (كرات ذهبية مضيئة)
-        const collectibles = [];
-        const collectibleGeo = new THREE.SphereGeometry(0.6, 16, 16);
-        const collectibleMat = new THREE.MeshStandardMaterial({ color: 0xf39c12, emissive: 0xf39c12 });
-
-        for (let i = 0; i < 15; i++) {
-            const coin = new THREE.Mesh(collectibleGeo, collectibleMat);
-            coin.position.set(
-                (Math.random() - 0.5) * 60,
-                0.6,
-                (Math.random() - 0.5) * 60
-            );
-            scene.add(coin);
-            collectibles.push(coin);
+        function updateUI() {
+            document.getElementById('gold-count').textContent = gold;
+            document.getElementById('elixir-count').textContent = elixir;
+            document.getElementById('army-count').textContent = armyCount;
+            document.getElementById('th-level').textContent = thLevel;
+            document.getElementById('troops-ready').textContent = troopsReady;
         }
 
-        // متغيرات الحركة والتحكم
-        let score = 0;
-        const keys = {};
-        let playerVelocityY = 0;
-        const gravity = 0.015;
-        let isJumping = false;
+        function logMessage(msg) {
+            const logBox = document.getElementById('battle-log');
+            logBox.innerHTML += `<br>${msg}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
 
-        window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
-        window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+        // جمع الموارد تلقائياً كل ثانية وبشكل يدوي
+        setInterval(() => {
+            gold += thLevel * 5;
+            elixir += thLevel * 3;
+            updateUI();
+        }, 2000);
 
-        // حلقة اللعبة والتحديث المستمر
-        function animate() {
-            requestAnimationFrame(animate);
+        function collectResources() {
+            gold += 50;
+            elixir += 30;
+            updateUI();
+            logMessage("✨ تم جمع موارد إضافية بنجاح.");
+        }
 
-            // حركة اللاعب عبر الكيبورد
-            const speed = 0.2;
-            if (keys['w'] || keys['arrowup']) player.position.z -= speed;
-            if (keys['s'] || keys['arrowdown']) player.position.z += speed;
-            if (keys['a'] || keys['arrowleft']) player.position.x -= speed;
-            if (keys['d'] || keys['arrowright']) player.position.x += speed;
-
-            // القفز والجاذبية
-            if ((keys[' '] || keys['arrowup']) && !isJumping && player.position.y <= 0.75) {
-                playerVelocityY = 0.3;
-                isJumping = true;
-            }
-
-            player.position.y += playerVelocityY;
-            if (player.position.y > 0.75) {
-                playerVelocityY -= gravity;
+        function trainTroop() {
+            if (elixir >= 25 && armyCount < maxArmy) {
+                elixir -= 25;
+                armyCount++;
+                troopsReady++;
+                updateUI();
+                logMessage("⚔️ تم تدريب جندي جديد بنجاح.");
+            } else if (armyCount >= maxArmy) {
+                logMessage("⚠️ معسكر الجيش ممتلئ بالكامل!");
             } else {
-                player.position.y = 0.75;
-                playerVelocityY = 0;
-                isJumping = false;
+                logMessage("❌ لا توجد كمية كافية من الإكسير للتدريب!");
             }
-
-            // تتبع الكاميرا للاعب (تتحرك معه وكأنها خلفه ومنظور رؤية)
-            camera.position.x = player.position.x;
-            camera.position.y = player.position.y + 6;
-            camera.position.z = player.position.z + 10;
-            camera.lookAt(player.position.x, player.position.y, player.position.z);
-
-            // فحص اصطدام اللاعب بالنقاط وجمعها
-            collectibles.forEach((coin, index) => {
-                // دوران جمالي للعملات
-                coin.rotation.y += 0.03;
-
-                // حساب المسافة للاصطدام
-                const distance = player.position.distanceTo(coin.position);
-                if (distance < 1.5) {
-                    scene.remove(coin);
-                    collectibles.splice(index, 1);
-                    score += 10;
-                    document.getElementById('score').textContent = score;
-                }
-            });
-
-            renderer.render(scene, camera);
         }
 
-        animate();
+        function upgradeTH() {
+            let cost = thLevel * 300;
+            if (gold >= cost) {
+                gold -= cost;
+                thLevel++;
+                updateUI();
+                logMessage(`🎉 مبروك! تم ترقية مبنى القرية إلى المستوى ${thLevel}.`);
+            } else {
+                logMessage(`❌ تحتاج إلى ${cost} ذهب لترقية التاون.`);
+            }
+        }
 
-        // التكيف مع حجم الشاشة
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        function startAttack() {
+            if (troopsReady > 0) {
+                let lootedGold = troopsReady * 40;
+                let lootedElixir = troopsReady * 30;
+                gold += lootedGold;
+                elixir += lootedElixir;
+                logMessage(`🔥 شنق هجوم ناجح! غنمت ${lootedGold} ذهب و ${lootedElixir} إكسير.`);
+                armyCount -= troopsReady;
+                troopsReady = 0;
+                updateUI();
+            } else {
+                logMessage("❌ جيشك فارغ! قم بتدريب جنود أولاً قبل شن الهجوم.");
+            }
+        }
     </script>
 </body>
 </html>
