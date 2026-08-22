@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تخمين الرقم</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2d2b42);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            background: #2a283e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            text-align: center;
+            width: 320px;
+        }
+        h2 { margin-bottom: 15px; color: #4ecca3; }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #444;
+            background: #1f1e2e;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+        }
+        button {
+            background: #4ecca3;
+            color: #1e1e2f;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background: #45b08c; }
+        #message { margin-top: 15px; font-weight: bold; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h2>لعبة التخمين الذكية</h2>
+        <p>خمن رقماً بين <strong>1 و 100</strong></p>
+        <input type="number" id="userGuess" min="1" max="100" placeholder="أدخل رقمك">
+        <br>
+        <button onclick="checkGuess()">تحقق</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // توليد رقم عشوائي بين 1 و 100
+        let randomNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+
+        function checkGuess() {
+            const userGuess = Number(document.getElementById('userGuess').value);
+            const message = document.getElementById('message');
+            
+            if (!userGuess || userGuess < 1 || userGuess > 100) {
+                message.style.color = '#ff6b6b';
+                message.textContent = 'الرجاء إدخال رقم صحيح بين 1 و 100!';
+                return;
+            }
+
+            attempts++;
+
+            if (userGuess === randomNumber) {
+                message.style.color = '#4ecca3';
+                message.textContent = `🎉 مبروك! فزت بعد ${attempts} محاولة. الرقم كان ${randomNumber}.`;
+            } else if (userGuess < randomNumber) {
+                message.style.color = '#f39c12';
+                message.textContent = '📈 الرقم صغير جداً، اصعد للأعلى!';
+            } else {
+                message.style.color = '#3498db';
+                message.textContent = '📉 الرقم كبير جداً، انزل للأسفل!';
+            }
+        }
+    </script>
+
+</body>
+</html>
