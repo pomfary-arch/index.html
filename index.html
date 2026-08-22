@@ -3,218 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة علي جاسم الاستراتيجية</title>
+    <title>لعبة علي جاسم - غزو الدول</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
         body {
             margin: 0;
             padding: 0;
-            background: #12121c;
+            background: #0f172a;
             color: #fff;
             font-family: Tahoma, sans-serif;
             overflow: hidden;
+            text-align: center;
         }
-        /* شريط الموارد العلوي */
-        #header-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(20, 20, 35, 0.95);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 5px;
-            border-bottom: 2px solid #e67e22;
-            z-index: 100;
-            font-size: 14px;
+        #header {
+            padding: 15px;
+            background: #1e293b;
+            border-bottom: 2px solid #3b82f6;
+            font-size: 18px;
             font-weight: bold;
         }
-        .resource {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .gold { color: #f1c40f; }
-        .elixir { color: #9b59b6; }
-
-        /* ساحة القرية */
-        #game-board {
-            position: absolute;
-            top: 55px;
-            bottom: 70px;
-            left: 0;
-            right: 0;
-            background: #1b263b;
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 70px);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        .village-hub {
-            background: #0f172a;
-            border: 3px solid #3b82f6;
-            border-radius: 15px;
-            padding: 20px;
-            width: 90%;
-            max-width: 350px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            margin-bottom: 15px;
-        }
-        .village-hub h2 { margin: 5px 0 10px 0; color: #60a5fa; font-size: 18px; }
-        
-        #battle-log {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 10px;
-            width: 90%;
-            max-width: 350px;
-            height: 90px;
-            overflow-y: auto;
-            font-size: 12px;
-            text-align: right;
-            color: #cbd5e1;
-        }
-
-        /* شريط الأزرار السفلي للتحكم والتدريب والهجوم */
-        #footer-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(15, 23, 42, 0.98);
-            display: flex;
             justify-content: space-around;
-            padding: 10px;
-            border-top: 2px solid #334155;
-            z-index: 100;
+            align-items: center;
+            padding: 20px;
         }
-        .action-btn {
-            background: #1e293b;
-            color: #fff;
-            border: 1px solid #64748b;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
+        .map-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .country {
             flex: 1;
-            margin: 0 4px;
-            text-align: center;
-            transition: 0.1s;
+            height: 150px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            border: 3px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transition: 0.2s;
         }
-        .action-btn:active { background: #3b82f6; }
+        .country:active { transform: scale(0.95); }
+        
+        /* ألوان الدول */
+        .player-country { background: #3b82f6; border-color: #93c5fd; }
+        .enemy-country { background: #ef4444; border-color: #fca5a5; }
+        .neutral-country { background: #64748b; border-color: #cbd5e1; }
+
+        .country-title { font-size: 14px; margin-bottom: 5px; opacity: 0.9; }
+        .army-count { font-size: 24px; color: #fff; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; }
+
+        #controls {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid #475569;
+        }
+        .attack-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .attack-btn:active { background: #059669; }
+        #status-msg { font-size: 13px; color: #cbd5e1; margin-top: 8px; }
     </style>
 </head>
 <body>
 
-    <!-- شريط الموارد -->
-    <div id="header-bar">
-        <div class="resource gold">💰 الذهب: <span id="gold-count">500</span></div>
-        <div class="resource elixir">🧪 الإكسير: <span id="elixir-count">300</span></div>
-        <div class="resource">🛡️ الجيش: <span id="army-count">0</span>/20</div>
-    </div>
+    <div id="header">🌍 لعبة علي جاسم - حرب غزو الدول</div>
 
-    <!-- ساحة اللعب والقرية -->
-    <div id="game-board">
-        <div class="village-hub">
-            <h2>🏰 قرية القائد علي جاسم</h2>
-            <p>مستوى القرية (Town Hall): <span id="th-level">1</span></p>
-            <p>الجنود الجاهزون: <span id="troops-ready">0</span> جندي</p>
+    <div id="game-container">
+        <!-- الخريطة والدول -->
+        <div class="map-grid">
+            <!-- دولة اللاعب -->
+            <div class="country player-country" onclick="selectCountry('player')">
+                <div class="country-title">قاعدة علي جاسم</div>
+                <div class="army-count" id="player-army">30</div>
+            </div>
+
+            <!-- دولة العدو -->
+            <div class="country enemy-country" onclick="selectCountry('enemy')">
+                <div class="country-title">دولة العدو</div>
+                <div class="army-count" id="enemy-army">25</div>
+            </div>
         </div>
 
-        <div id="battle-log">
-            [سجل الأحداث]: أهلاً بك يا قائد علي في قريتك الجديدة! ابدأ بجمع الموارد وتدريب الجيش.
+        <div style="width: 100%;">
+            <div class="country neutral-country" style="margin: 0 auto; max-width: 180px; height: 110px;" onclick="selectCountry('neutral')">
+                <div class="country-title">منطقة محايدة</div>
+                <div class="army-count" id="neutral-army">15</div>
+            </div>
         </div>
-    </div>
 
-    <!-- الأزرار السفلية للتحكم بالهاتف -->
-    <div id="footer-controls">
-        <button class="action-btn" onclick="collectResources()">جمع الموارد</button>
-        <button class="action-btn" onclick="trainTroop()">تدريب جندي</button>
-        <button class="action-btn" onclick="upgradeTH()">ترقية التاون</button>
-        <button class="action-btn" style="background: #b91c1c; border-color: #ef4444;" onclick="startAttack()">هجوم!</button>
+        <!-- لوحة الأوامر والهجوم -->
+        <div id="controls">
+            <div id="status-msg">اختر الدولة المستهدفة للهجوم واضغط شن الهجوم!</div>
+            <button class="attack-btn" onclick="launchAttack()">⚔️ شن الهجوم العسكري</button>
+        </div>
     </div>
 
     <script>
-        let gold = 500;
-        let elixir = 300;
-        let armyCount = 0;
-        let thLevel = 1;
-        let troopsReady = 0;
-
-        const maxArmy = 20;
+        let playerArmy = 30;
+        let enemyArmy = 25;
+        let neutralArmy = 15;
+        
+        let selectedTarget = 'enemy'; // الهدف الافتراضي
 
         function updateUI() {
-            document.getElementById('gold-count').textContent = gold;
-            document.getElementById('elixir-count').textContent = elixir;
-            document.getElementById('army-count').textContent = armyCount;
-            document.getElementById('th-level').textContent = thLevel;
-            document.getElementById('troops-ready').textContent = troopsReady;
+            document.getElementById('player-army').textContent = playerArmy;
+            document.getElementById('enemy-army').textContent = enemyArmy;
+            document.getElementById('neutral-army').textContent = neutralArmy;
         }
 
-        function logMessage(msg) {
-            const logBox = document.getElementById('battle-log');
-            logBox.innerHTML += `<br>${msg}`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        // جمع الموارد تلقائياً كل ثانية وبشكل يدوي
+        // زيادة جيش اللاعب تلقائياً مع مرور الوقت (مثل محرك اللعبة الأصلية)
         setInterval(() => {
-            gold += thLevel * 5;
-            elixir += thLevel * 3;
+            if (playerArmy < 100) {
+                playerArmy += 1;
+                updateUI();
+            }
+        }, 1500);
+
+        function selectCountry(target) {
+            selectedTarget = target;
+            const msg = document.getElementById('status-msg');
+            if (target === 'enemy') {
+                msg.textContent = "🎯 تم اختيار: دولة العدو للهجوم عليها!";
+            } else if (target === 'neutral') {
+                msg.textContent = "🎯 تم اختيار: المنطقة المحايدة لاحتلالها!";
+            } else {
+                msg.textContent = "⚠️ لا يمكنك الهجوم على قاعدتك الخاصة!";
+            }
+        }
+
+        function launchAttack() {
+            const msg = document.getElementById('status-msg');
+            
+            if (selectedTarget === 'enemy') {
+                if (playerArmy > enemyArmy) {
+                    playerArmy -= enemyArmy;
+                    enemyArmy = 0;
+                    msg.textContent = "🎉 مبروك يا علي! تم اجتياح وغزو دولة العدو بنجاح!";
+                    document.querySelector('.enemy-country').style.background = '#3b82f6'; // تصبح للسيادة
+                } else {
+                    msg.textContent = "❌ فشل الهجوم! جيش العدو كان أقوى، تراجع وحدّث جيشك.";
+                    playerArmy = Math.max(0, playerArmy - enemyArmy);
+                }
+            } else if (selectedTarget === 'neutral') {
+                if (playerArmy > neutralArmy) {
+                    playerArmy -= neutralArmy;
+                    neutralArmy = 0;
+                    msg.textContent = "✨ تم السيطرة على المنطقة المحايدة وتوسيع نفوذك!";
+                    document.querySelector('.neutral-country').style.background = '#3b82f6';
+                } else {
+                    msg.textContent = "❌ جيشك غير كافٍ لاحتلال المنطقة المحايدة!";
+                }
+            } else {
+                msg.textContent = "⚠️ اختر هدفاً خارجياً للهجوم عليه أولاً!";
+            }
             updateUI();
-        }, 2000);
-
-        function collectResources() {
-            gold += 50;
-            elixir += 30;
-            updateUI();
-            logMessage("✨ تم جمع موارد إضافية بنجاح.");
         }
 
-        function trainTroop() {
-            if (elixir >= 25 && armyCount < maxArmy) {
-                elixir -= 25;
-                armyCount++;
-                troopsReady++;
-                updateUI();
-                logMessage("⚔️ تم تدريب جندي جديد بنجاح.");
-            } else if (armyCount >= maxArmy) {
-                logMessage("⚠️ معسكر الجيش ممتلئ بالكامل!");
-            } else {
-                logMessage("❌ لا توجد كمية كافية من الإكسير للتدريب!");
-            }
-        }
-
-        function upgradeTH() {
-            let cost = thLevel * 300;
-            if (gold >= cost) {
-                gold -= cost;
-                thLevel++;
-                updateUI();
-                logMessage(`🎉 مبروك! تم ترقية مبنى القرية إلى المستوى ${thLevel}.`);
-            } else {
-                logMessage(`❌ تحتاج إلى ${cost} ذهب لترقية التاون.`);
-            }
-        }
-
-        function startAttack() {
-            if (troopsReady > 0) {
-                let lootedGold = troopsReady * 40;
-                let lootedElixir = troopsReady * 30;
-                gold += lootedGold;
-                elixir += lootedElixir;
-                logMessage(`🔥 شنق هجوم ناجح! غنمت ${lootedGold} ذهب و ${lootedElixir} إكسير.`);
-                armyCount -= troopsReady;
-                troopsReady = 0;
-                updateUI();
-            } else {
-                logMessage("❌ جيشك فارغ! قم بتدريب جنود أولاً قبل شن الهجوم.");
-            }
-        }
+        updateUI();
     </script>
 </body>
 </html>
