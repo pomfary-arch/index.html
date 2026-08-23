@@ -1,3339 +1,1312 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<meta
-    name="theme-color"
-    content="#0f766e"
->
-
-<meta
-    name="description"
-    content="منصة المقاولات والمشاريع"
->
-
-<title>مقاولاتي</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="فورسيزن - منصة المشاريع والمقاولات">
+<title>فورسيزن</title>
 
 <style>
-
-/* =========================================
-   RESET
-========================================= */
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-
-:root {
-
-    --primary: #0f766e;
-    --primary-dark: #115e59;
-    --primary-light: #ccfbf1;
-
-    --background: #f5f7f9;
-    --surface: #ffffff;
-
-    --text: #17202a;
-    --muted: #6b7280;
-
-    --border: #e5e7eb;
-
-    --danger: #dc2626;
-    --success: #16a34a;
-    --warning: #d97706;
-
-    --shadow:
-        0 4px 18px rgba(0,0,0,.07);
-
-    --radius: 16px;
+:root{
+    --primary:#0b766e;
+    --primary-dark:#075e58;
+    --gold:#c59b45;
+    --bg:#f4f7f8;
+    --surface:#ffffff;
+    --surface2:#eef3f4;
+    --text:#14202b;
+    --muted:#6b7280;
+    --border:#e2e8eb;
+    --danger:#dc2626;
+    --success:#15803d;
+    --warning:#d97706;
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+    --shadow2:0 18px 50px rgba(15,23,42,.14);
+    --radius:20px;
 }
 
+html{
+    scroll-behavior:smooth;
+}
 
-html,
-body {
+body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,Tahoma,sans-serif;
+    overflow-x:hidden;
+}
 
-    width: 100%;
-    min-height: 100%;
+button,input,textarea,select{
+    font:inherit;
+}
 
-    font-family:
-        Arial,
-        "Tahoma",
-        sans-serif;
+button{
+    cursor:pointer;
+}
 
+button:disabled{
+    cursor:not-allowed;
+    opacity:.6;
+}
+
+input,textarea,select{
+    outline:none;
+}
+
+.hidden{
+    display:none!important;
+}
+
+#app{
+    min-height:100vh;
+    padding-bottom:90px;
+}
+
+/* TOP BAR */
+
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(255,255,255,.94);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+}
+
+.topbar-inner{
+    max-width:1180px;
+    height:72px;
+    margin:auto;
+    padding:0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:0;
+}
+
+.brand-icon{
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(145deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    font-size:20px;
+    font-weight:900;
+    box-shadow:0 7px 20px rgba(11,118,110,.22);
+    flex:none;
+}
+
+.brand-text{
+    min-width:0;
+}
+
+.brand-name{
+    color:var(--primary);
+    font-size:18px;
+    font-weight:950;
+    white-space:nowrap;
+}
+
+.brand-sub{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+    white-space:nowrap;
+}
+
+.top-actions{
+    display:flex;
+    gap:8px;
+}
+
+.icon-btn{
+    width:43px;
+    height:43px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:13px;
+    display:grid;
+    place-items:center;
+    font-size:19px;
+    position:relative;
+}
+
+.icon-btn:hover{
+    border-color:var(--primary);
+    transform:translateY(-1px);
+}
+
+.notification-dot{
+    position:absolute;
+    top:6px;
+    left:6px;
+    min-width:17px;
+    height:17px;
+    padding:0 4px;
+    border-radius:20px;
+    background:var(--danger);
+    color:#fff;
+    font-size:10px;
+    font-weight:900;
+    display:grid;
+    place-items:center;
+}
+
+/* PAGES */
+
+.page{
+    display:none;
+    max-width:1180px;
+    margin:auto;
+    padding:26px 18px;
+    animation:fadeIn .22s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+.page-title{
+    font-size:30px;
+    line-height:1.25;
+    font-weight:950;
+}
+
+.page-subtitle{
+    margin-top:8px;
+    color:var(--muted);
+    line-height:1.8;
+}
+
+/* HERO */
+
+.hero{
+    border-radius:28px;
+    padding:34px;
+    color:#fff;
     background:
-        var(--background);
-
-    color:
-        var(--text);
-
+        radial-gradient(circle at 10% 10%,rgba(255,255,255,.14),transparent 30%),
+        linear-gradient(135deg,#071f2c,#0b766e 62%,#0b5d58);
+    box-shadow:var(--shadow2);
+    overflow:hidden;
+    position:relative;
 }
 
-
-body {
-
-    overflow-x: hidden;
-
+.hero:after{
+    content:"";
+    position:absolute;
+    width:260px;
+    height:260px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.1);
+    left:-80px;
+    bottom:-120px;
 }
 
-
-button,
-input,
-select,
-textarea {
-
-    font-family: inherit;
-
+.hero-kicker{
+    color:#d7c28a;
+    font-size:13px;
+    font-weight:900;
+    margin-bottom:10px;
 }
 
-
-button {
-
-    cursor: pointer;
-
+.hero h1{
+    font-size:clamp(28px,5vw,48px);
+    line-height:1.15;
+    max-width:760px;
+    font-weight:950;
 }
 
-
-.hidden {
-
-    display: none !important;
-
+.hero p{
+    margin-top:14px;
+    max-width:720px;
+    line-height:1.9;
+    color:rgba(255,255,255,.83);
 }
 
+.hero-actions{
+    margin-top:22px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
 
-/* =========================================
-   SPLASH SCREEN
-========================================= */
+.hero .btn-outline{
+    color:#fff;
+    border-color:rgba(255,255,255,.35);
+    background:rgba(255,255,255,.08);
+}
 
-#splash {
+/* BUTTONS */
 
-    position: fixed;
+.btn{
+    border:0;
+    border-radius:13px;
+    padding:12px 17px;
+    font-weight:900;
+    transition:.18s ease;
+}
 
-    inset: 0;
+.btn:hover{
+    transform:translateY(-1px);
+}
 
-    z-index: 9999;
+.btn-primary{
+    color:#fff;
+    background:var(--primary);
+}
 
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-outline{
+    color:var(--text);
+    background:#fff;
+    border:1px solid var(--border);
+}
+
+.btn-danger{
+    color:#fff;
+    background:var(--danger);
+}
+
+.btn-gold{
+    color:#fff;
+    background:var(--gold);
+}
+
+.btn-small{
+    padding:9px 12px;
+    font-size:13px;
+}
+
+/* SEARCH */
+
+.search-row{
+    margin-top:22px;
+    display:flex;
+    gap:9px;
+}
+
+.search-wrap{
+    position:relative;
+    flex:1;
+}
+
+.search-wrap span{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--muted);
+}
+
+.search-wrap input{
+    padding-right:45px;
+}
+
+.input{
+    width:100%;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:13px;
+    padding:13px 14px;
+    color:var(--text);
+    font-size:15px;
+}
+
+.input:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(11,118,110,.1);
+}
+
+textarea.input{
+    min-height:120px;
+    resize:vertical;
+}
+
+.field{
+    margin-bottom:15px;
+}
+
+.field label{
+    display:block;
+    margin-bottom:7px;
+    font-size:13px;
+    font-weight:900;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+}
+
+.field.full{
+    grid-column:1/-1;
+}
+
+/* CHIPS */
+
+.chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:16px 0;
+}
+
+.chip{
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    border-radius:30px;
+    padding:9px 14px;
+    font-size:13px;
+    font-weight:800;
+}
+
+.chip.active{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+}
+
+/* SECTIONS */
+
+.section{
+    margin-top:28px;
+}
+
+.section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px;
+}
+
+.section-head h2{
+    font-size:21px;
+    font-weight:950;
+}
+
+.section-head p{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* GRID */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+}
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+}
+
+.card-image{
+    min-height:145px;
     background:
-        var(--primary);
-
-    color:
-        white;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    text-align:
-        center;
-
-}
-
-
-.splash-content {
-
-    animation:
-        splashIn .7s ease;
-
-}
-
-
-.logo-circle {
-
-    width: 90px;
-    height: 90px;
-
-    border-radius: 50%;
-
-    background:
-        white;
-
-    color:
-        var(--primary);
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size: 42px;
-
-    font-weight:
-        bold;
-
-    margin:
-        0 auto 20px;
-
-    box-shadow:
-        0 10px 35px rgba(0,0,0,.2);
-
-}
-
-
-.splash-title {
-
-    font-size: 28px;
-
-    font-weight:
-        800;
-
-}
-
-
-.splash-subtitle {
-
-    margin-top: 8px;
-
-    opacity:
-        .85;
-
-}
-
-
-.loader {
-
-    width: 34px;
-    height: 34px;
-
-    border:
-        3px solid rgba(255,255,255,.3);
-
-    border-top-color:
-        white;
-
-    border-radius:
-        50%;
-
-    margin:
-        28px auto 0;
-
-    animation:
-        spin 1s linear infinite;
-
-}
-
-
-/* =========================================
-   AUTH
-========================================= */
-
-.auth-screen {
-
-    min-height:
-        100vh;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    padding:
-        20px;
-
-}
-
-
-.auth-card {
-
-    width:
-        100%;
-
-    max-width:
-        430px;
-
-    background:
-        var(--surface);
-
-    border-radius:
-        24px;
-
-    padding:
-        30px;
-
-    box-shadow:
-        var(--shadow);
-
-}
-
-
-.auth-logo {
-
-    text-align:
-        center;
-
-    margin-bottom:
-        25px;
-
-}
-
-
-.auth-logo .logo-circle {
-
-    width:
-        70px;
-
-    height:
-        70px;
-
-    font-size:
-        32px;
-
-}
-
-
-.auth-title {
-
-    text-align:
-        center;
-
-    font-size:
-        25px;
-
-    font-weight:
-        800;
-
-    margin-bottom:
-        8px;
-
-}
-
-
-.auth-description {
-
-    text-align:
-        center;
-
-    color:
-        var(--muted);
-
-    line-height:
-        1.7;
-
-    margin-bottom:
-        25px;
-
-}
-
-
-.input-group {
-
-    margin-bottom:
-        18px;
-
-}
-
-
-.input-label {
-
-    display:
-        block;
-
-    margin-bottom:
-        8px;
-
-    font-weight:
-        700;
-
-    font-size:
-        14px;
-
-}
-
-
-.input {
-
-    width:
-        100%;
-
-    border:
-        1px solid var(--border);
-
-    background:
-        #fff;
-
-    border-radius:
-        12px;
-
-    padding:
-        14px;
-
-    font-size:
-        16px;
-
-    outline:
-        none;
-
-    transition:
-        .2s;
-
-}
-
-
-.input:focus {
-
-    border-color:
-        var(--primary);
-
-    box-shadow:
-        0 0 0 3px
-        rgba(15,118,110,.1);
-
-}
-
-
-.primary-btn {
-
-    width:
-        100%;
-
-    border:
-        0;
-
-    background:
-        var(--primary);
-
-    color:
-        white;
-
-    border-radius:
-        12px;
-
-    padding:
-        14px 18px;
-
-    font-size:
-        16px;
-
-    font-weight:
-        800;
-
-    transition:
-        .2s;
-
-}
-
-
-.primary-btn:hover {
-
-    background:
-        var(--primary-dark);
-
-    transform:
-        translateY(-1px);
-
-}
-
-
-.secondary-btn {
-
-    border:
-        1px solid var(--border);
-
-    background:
-        white;
-
-    color:
-        var(--text);
-
-    border-radius:
-        12px;
-
-    padding:
-        12px 16px;
-
-    font-weight:
-        700;
-
-}
-
-
-.text-btn {
-
-    border:
-        0;
-
-    background:
-        transparent;
-
-    color:
-        var(--primary);
-
-    font-weight:
-        700;
-
-    margin-top:
-        16px;
-
-}
-
-
-.error-message {
-
-    background:
-        #fef2f2;
-
-    color:
-        var(--danger);
-
-    border-radius:
-        10px;
-
-    padding:
-        12px;
-
-    margin-bottom:
-        15px;
-
-    line-height:
-        1.5;
-
-}
-
-
-.success-message {
-
-    background:
-        #f0fdf4;
-
-    color:
-        var(--success);
-
-    border-radius:
-        10px;
-
-    padding:
-        12px;
-
-    margin-bottom:
-        15px;
-
-}
-
-
-/* =========================================
-   OTP
-========================================= */
-
-.otp-container {
-
-    display:
-        flex;
-
-    direction:
-        ltr;
-
-    gap:
-        8px;
-
-    justify-content:
-        center;
-
-    margin:
-        22px 0;
-
-}
-
-
-.otp-input {
-
-    width:
-        48px;
-
-    height:
-        55px;
-
-    text-align:
-        center;
-
-    border:
-        1px solid var(--border);
-
-    border-radius:
-        12px;
-
-    font-size:
-        22px;
-
-    font-weight:
-        bold;
-
-    outline:
-        none;
-
-}
-
-
-.otp-input:focus {
-
-    border-color:
-        var(--primary);
-
-}
-
-
-/* =========================================
-   APP LAYOUT
-========================================= */
-
-#app {
-
-    min-height:
-        100vh;
-
-    padding-bottom:
-        80px;
-
-}
-
-
-.topbar {
-
-    position:
-        sticky;
-
-    top:
-        0;
-
-    z-index:
-        100;
-
-    background:
-        rgba(255,255,255,.95);
-
-    backdrop-filter:
-        blur(10px);
-
-    border-bottom:
-        1px solid var(--border);
-
-}
-
-
-.topbar-inner {
-
-    max-width:
-        1100px;
-
-    margin:
-        auto;
-
-    height:
-        68px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    padding:
-        0 18px;
-
-}
-
-
-.brand {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    font-weight:
-        900;
-
-    color:
-        var(--primary);
-
-}
-
-
-.brand-icon {
-
-    width:
-        38px;
-
-    height:
-        38px;
-
-    border-radius:
-        12px;
-
-    background:
-        var(--primary);
-
-    color:
-        white;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-weight:
-        900;
-
-}
-
-
-.top-actions {
-
-    display:
-        flex;
-
-    gap:
-        8px;
-
-}
-
-
-.icon-btn {
-
-    width:
-        42px;
-
-    height:
-        42px;
-
-    border:
-        0;
-
-    background:
-        #f3f4f6;
-
-    border-radius:
-        12px;
-
-    font-size:
-        19px;
-
-}
-
-
-.page {
-
-    max-width:
-        1100px;
-
-    margin:
-        auto;
-
-    padding:
-        22px 18px;
-
-}
-
-
-.page-title {
-
-    font-size:
-        25px;
-
-    font-weight:
-        900;
-
-    margin-bottom:
-        7px;
-
-}
-
-
-.page-subtitle {
-
-    color:
-        var(--muted);
-
-    margin-bottom:
-        20px;
-
-    line-height:
-        1.6;
-
-}
-
-
-/* =========================================
-   SEARCH
-========================================= */
-
-.search-box {
-
-    display:
-        flex;
-
-    gap:
-        8px;
-
-    margin-bottom:
-        20px;
-
-}
-
-
-.search-box .input {
-
-    flex:
-        1;
-
-}
-
-
-.filter-btn {
-
-    border:
-        0;
-
-    background:
-        var(--primary);
-
-    color:
-        white;
-
-    padding:
-        0 18px;
-
-    border-radius:
-        12px;
-
-    font-weight:
-        800;
-
-}
-
-
-/* =========================================
-   PROJECT CARDS
-========================================= */
-
-.grid {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap:
-        16px;
-
-}
-
-
-.project-card,
-.company-card {
-
-    background:
-        white;
-
-    border-radius:
-        var(--radius);
-
-    overflow:
-        hidden;
-
-    box-shadow:
-        var(--shadow);
-
-    border:
-        1px solid rgba(0,0,0,.03);
-
-    transition:
-        .2s;
-
-}
-
-
-.project-card:hover,
-.company-card:hover {
-
-    transform:
-        translateY(-3px);
-
+        linear-gradient(135deg,
+            rgba(11,118,110,.95),
+            rgba(7,94,88,.9));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:58px;
+    position:relative;
 }
-
-
-.project-image {
-
-    width:
-        100%;
-
-    height:
-        175px;
-
-    object-fit:
-        cover;
-
-    background:
-        #e5e7eb;
 
+.card-image .badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    border-radius:20px;
+    background:rgba(0,0,0,.25);
+    backdrop-filter:blur(8px);
+    padding:6px 10px;
+    font-size:11px;
+    font-weight:900;
 }
 
-
-.project-content {
-
-    padding:
-        15px;
-
+.card-body{
+    padding:17px;
 }
-
-
-.project-title {
-
-    font-size:
-        17px;
-
-    font-weight:
-        800;
-
-    line-height:
-        1.5;
 
-    margin-bottom:
-        10px;
-
+.card-title{
+    font-size:18px;
+    font-weight:950;
+    line-height:1.45;
 }
-
-
-.meta {
-
-    color:
-        var(--muted);
 
-    font-size:
-        13px;
-
-    margin:
-        7px 0;
-
-    line-height:
-        1.5;
-
+.card-description{
+    color:var(--muted);
+    line-height:1.75;
+    font-size:13px;
+    margin-top:10px;
 }
-
 
-.status {
-
-    display:
-        inline-block;
-
-    padding:
-        6px 9px;
-
-    border-radius:
-        8px;
-
-    font-size:
-        12px;
-
-    font-weight:
-        800;
-
+.meta{
+    margin-top:9px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    color:var(--muted);
+    font-size:12px;
 }
-
-
-.status-open {
 
-    color:
-        #166534;
-
-    background:
-        #dcfce7;
-
+.card-price{
+    color:var(--primary);
+    font-size:20px;
+    font-weight:950;
+    margin-top:13px;
 }
-
-
-.status-closed {
 
-    color:
-        #991b1b;
-
-    background:
-        #fee2e2;
-
+.card-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
 }
-
-
-/* =========================================
-   COMPANY CARDS
-========================================= */
 
-.company-card {
+/* STATS */
 
-    padding:
-        18px;
-
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+    margin:20px 0;
 }
-
-
-.company-logo {
-
-    width:
-        65px;
-
-    height:
-        65px;
-
-    border-radius:
-        15px;
-
-    object-fit:
-        cover;
-
-    background:
-        #f3f4f6;
 
-    margin-bottom:
-        12px;
-
+.stat{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:17px;
+    box-shadow:var(--shadow);
+    text-align:center;
 }
-
-
-.company-name {
-
-    font-size:
-        18px;
 
-    font-weight:
-        900;
-
-    margin-bottom:
-        8px;
-
+.stat-icon{
+    font-size:23px;
+    margin-bottom:8px;
 }
-
-
-/* =========================================
-   DETAILS
-========================================= */
 
-.back-btn {
-
-    border:
-        0;
-
-    background:
-        transparent;
-
-    font-size:
-        16px;
-
-    color:
-        var(--primary);
-
-    font-weight:
-        800;
-
-    margin-bottom:
-        18px;
-
+.stat-number{
+    display:block;
+    font-size:25px;
+    font-weight:950;
 }
-
 
-.detail-card {
-
-    background:
-        white;
-
-    border-radius:
-        20px;
-
-    overflow:
-        hidden;
-
-    box-shadow:
-        var(--shadow);
-
+.stat-label{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
 }
-
-
-.detail-image {
-
-    width:
-        100%;
 
-    max-height:
-        420px;
+/* NOTICE */
 
-    object-fit:
-        cover;
-
+.notice{
+    padding:14px;
+    border-radius:14px;
+    background:var(--surface2);
+    color:var(--muted);
+    line-height:1.8;
+    font-size:13px;
 }
-
-
-.detail-body {
-
-    padding:
-        22px;
 
+.notice strong{
+    color:var(--text);
 }
-
-
-.detail-title {
-
-    font-size:
-        27px;
-
-    font-weight:
-        900;
 
-    line-height:
-        1.4;
+/* EMPTY */
 
-    margin-bottom:
-        18px;
-
+.empty{
+    background:#fff;
+    border:1px dashed var(--border);
+    border-radius:18px;
+    padding:35px 20px;
+    text-align:center;
+    color:var(--muted);
+    grid-column:1/-1;
 }
-
-
-.detail-section {
-
-    margin-top:
-        24px;
 
+.empty-icon{
+    font-size:35px;
+    margin-bottom:10px;
 }
 
-
-.detail-section h3 {
-
-    margin-bottom:
-        10px;
-
+.empty-title{
+    color:var(--text);
+    font-weight:950;
+    font-size:17px;
 }
-
 
-.detail-description {
-
-    color:
-        #4b5563;
-
-    line-height:
-        1.9;
-
+.empty-text{
+    margin-top:6px;
+    line-height:1.7;
+    font-size:13px;
 }
-
-
-/* =========================================
-   PROFILE
-========================================= */
-
-.profile-card {
-
-    background:
-        white;
-
-    border-radius:
-        20px;
 
-    padding:
-        24px;
+/* BOTTOM NAV */
 
-    box-shadow:
-        var(--shadow);
-
-    text-align:
-        center;
-
+.bottom-nav{
+    position:fixed;
+    z-index:110;
+    bottom:0;
+    right:0;
+    left:0;
+    height:76px;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(16px);
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:center;
 }
-
-
-.profile-avatar {
-
-    width:
-        85px;
-
-    height:
-        85px;
-
-    border-radius:
-        50%;
-
-    margin:
-        0 auto 15px;
 
-    background:
-        var(--primary-light);
-
-    color:
-        var(--primary);
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    font-size:
-        35px;
-
-    font-weight:
-        900;
-
+.bottom-nav-inner{
+    width:100%;
+    max-width:650px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
 }
-
 
-.menu-list {
-
-    margin-top:
-        20px;
-
-    display:
-        grid;
-
-    gap:
-        10px;
-
+.nav-button{
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:800;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
 }
-
-
-.menu-item {
-
-    width:
-        100%;
-
-    border:
-        1px solid var(--border);
 
-    background:
-        white;
-
-    border-radius:
-        12px;
-
-    padding:
-        15px;
-
-    text-align:
-        right;
-
-    font-weight:
-        700;
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
+.nav-button.active{
+    color:var(--primary);
 }
-
-
-/* =========================================
-   BOTTOM NAVIGATION
-========================================= */
-
-.bottom-nav {
-
-    position:
-        fixed;
-
-    bottom:
-        0;
-
-    left:
-        0;
-
-    right:
-        0;
-
-    z-index:
-        200;
 
-    height:
-        68px;
-
-    background:
-        white;
-
-    border-top:
-        1px solid var(--border);
-
-    display:
-        flex;
-
-    justify-content:
-        center;
-
+.nav-icon{
+    width:31px;
+    height:31px;
+    display:grid;
+    place-items:center;
+    border-radius:10px;
+    font-size:18px;
 }
-
-
-.bottom-nav-inner {
-
-    width:
-        100%;
 
-    max-width:
-        600px;
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
+.nav-button.active .nav-icon{
+    background:var(--primary);
+    color:#fff;
 }
-
-
-.nav-item {
-
-    border:
-        0;
-
-    background:
-        transparent;
-
-    color:
-        var(--muted);
 
-    font-size:
-        12px;
+/* MODAL */
 
-    font-weight:
-        700;
-
+#modalRoot{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    pointer-events:none;
 }
-
-
-.nav-item span {
-
-    display:
-        block;
 
-    font-size:
-        21px;
-
-    margin-bottom:
-        3px;
-
+.modal-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(2,8,23,.55);
+    backdrop-filter:blur(5px);
+    pointer-events:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
 }
-
-
-.nav-item.active {
 
-    color:
-        var(--primary);
-
+.dialog{
+    width:min(700px,100%);
+    max-height:90vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:24px;
+    box-shadow:0 30px 100px rgba(0,0,0,.3);
+    padding:22px;
+    animation:modalIn .2s ease;
 }
-
-
-/* =========================================
-   MODAL
-========================================= */
-
-.modal {
-
-    position:
-        fixed;
-
-    inset:
-        0;
-
-    background:
-        rgba(0,0,0,.45);
-
-    z-index:
-        500;
 
-    display:
-        flex;
-
-    align-items:
-        flex-end;
-
-    justify-content:
-        center;
-
+.dialog-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:18px;
 }
-
-
-.modal-card {
-
-    width:
-        100%;
-
-    max-width:
-        650px;
-
-    background:
-        white;
 
-    border-radius:
-        22px 22px 0 0;
-
-    padding:
-        22px;
-
-    max-height:
-        90vh;
-
-    overflow-y:
-        auto;
-
+.dialog-head h2{
+    font-size:22px;
+    font-weight:950;
 }
-
-
-.modal-header {
-
-    display:
-        flex;
-
-    align-items:
-        center;
 
-    justify-content:
-        space-between;
-
-    margin-bottom:
-        20px;
-
+.close-button{
+    width:40px;
+    height:40px;
+    border:0;
+    border-radius:12px;
+    background:var(--surface2);
+    font-size:24px;
 }
-
-
-.modal-close {
-
-    border:
-        0;
-
-    background:
-        #f3f4f6;
-
-    border-radius:
-        10px;
-
-    width:
-        38px;
 
-    height:
-        38px;
+/* TOAST */
 
-    font-size:
-        20px;
-
+#toastRoot{
+    position:fixed;
+    z-index:2000;
+    bottom:94px;
+    right:18px;
+    max-width:360px;
 }
-
-
-/* =========================================
-   EMPTY / LOADING
-========================================= */
-
-.empty-state {
 
-    text-align:
-        center;
-
-    padding:
-        50px 20px;
-
-    color:
-        var(--muted);
-
+.toast{
+    background:#101820;
+    color:#fff;
+    padding:13px 16px;
+    border-radius:14px;
+    margin-top:8px;
+    box-shadow:var(--shadow2);
+    animation:toastIn .2s ease;
+    font-size:13px;
+    line-height:1.5;
 }
-
 
-.empty-icon {
+/* ANIMATIONS */
 
-    font-size:
-        45px;
-
-    margin-bottom:
-        12px;
-
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(5px)}
+    to{opacity:1;transform:none}
 }
-
-
-.loading {
 
-    display:
-        flex;
-
-    justify-content:
-        center;
-
-    padding:
-        45px;
-
+@keyframes modalIn{
+    from{opacity:0;transform:translateY(12px) scale(.98)}
+    to{opacity:1;transform:none}
 }
-
 
-.spinner {
-
-    width:
-        38px;
-
-    height:
-        38px;
-
-    border:
-        4px solid #d1d5db;
-
-    border-top-color:
-        var(--primary);
-
-    border-radius:
-        50%;
-
-    animation:
-        spin .8s linear infinite;
-
+@keyframes toastIn{
+    from{opacity:0;transform:translateY(10px)}
+    to{opacity:1;transform:none}
 }
-
-
-/* =========================================
-   ANIMATIONS
-========================================= */
 
-@keyframes spin {
+/* RESPONSIVE */
 
-    to {
-        transform: rotate(360deg);
+@media(max-width:900px){
+    .grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
     }
 
+    .stats{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
 }
 
-
-@keyframes splashIn {
-
-    from {
-
-        opacity:
-            0;
-
-        transform:
-            scale(.92);
-
+@media(max-width:600px){
+    .topbar-inner{
+        height:64px;
     }
 
-    to {
-
-        opacity:
-            1;
-
-        transform:
-            scale(1);
-
+    .brand-sub{
+        display:none;
     }
 
+    .brand-name{
+        font-size:16px;
+    }
+
+    .page{
+        padding:20px 13px;
+    }
+
+    .hero{
+        padding:25px 20px;
+        border-radius:22px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .field.full{
+        grid-column:auto;
+    }
+
+    .search-row{
+        flex-direction:column;
+    }
+
+    .stats{
+        gap:9px;
+    }
+
+    .stat{
+        padding:14px 8px;
+    }
+
+    .dialog{
+        padding:17px;
+        border-radius:20px;
+    }
 }
-
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media (max-width: 850px) {
-
-    .grid {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-    }
-
-}
-
-
-@media (max-width: 580px) {
-
-    .grid {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .page {
-
-        padding:
-            18px 14px;
-
-    }
-
-
-    .topbar-inner {
-
-        padding:
-            0 14px;
-
-    }
-
-
-    .auth-card {
-
-        padding:
-            24px 18px;
-
-    }
-
-
-    .project-image {
-
-        height:
-            200px;
-
-    }
-
-
-    .search-box {
-
-        flex-direction:
-            column;
-
-    }
-
-
-    .filter-btn {
-
-        height:
-            48px;
-
-    }
-
-}
-
 </style>
-
 </head>
 
 <body>
 
-
-<!-- =========================================
-     SPLASH
-========================================= -->
-
-<div id="splash">
-
-    <div class="splash-content">
-
-        <div class="logo-circle">
-            م
-        </div>
-
-        <div class="splash-title">
-            مقاولاتي
-        </div>
-
-        <div class="splash-subtitle">
-            منصة المشاريع والمقاولات
-        </div>
-
-        <div class="loader"></div>
-
-    </div>
-
-            </div>
-       <!-- =========================================
-     AUTH SCREEN
-========================================= -->
-
-<section
-    id="authScreen"
-    class="auth-screen hidden"
->
-
-    <div class="auth-card">
-
-        <div class="auth-logo">
-
-            <div class="logo-circle">
-                م
-            </div>
-
-        </div>
-
-
-        <h1 class="auth-title">
-            مرحبًا بك
-        </h1>
-
-
-        <p class="auth-description">
-            سجّل الدخول للوصول إلى المشاريع
-            والشركات والفرص المتاحة.
-        </p>
-
-
-        <div
-            id="authError"
-            class="error-message hidden"
-        ></div>
-
-
-        <!-- PHONE -->
-
-        <div id="phoneStep">
-
-            <div class="input-group">
-
-                <label class="input-label">
-                    رقم الهاتف
-                </label>
-
-                <input
-                    id="phoneInput"
-                    class="input"
-                    type="tel"
-                    inputmode="tel"
-                    placeholder="07XXXXXXXXX"
-                >
-
-            </div>
-
-
-            <button
-                class="primary-btn"
-                onclick="sendOTP()"
-            >
-                إرسال رمز التحقق
-            </button>
-
-        </div>
-
-
-        <!-- OTP -->
-
-        <div
-            id="otpStep"
-            class="hidden"
-        >
-
-            <p
-                style="
-                    text-align:center;
-                    color:var(--muted);
-                    line-height:1.7;
-                "
-            >
-                أدخل رمز التحقق التجريبي
-                الذي ظهر لك.
-            </p>
-
-
-            <div class="otp-container">
-
-                <input
-                    class="otp-input"
-                    maxlength="1"
-                    inputmode="numeric"
-                >
-
-                <input
-                    class="otp-input"
-                    maxlength="1"
-                    inputmode="numeric"
-                >
-
-                <input
-                    class="otp-input"
-                    maxlength="1"
-                    inputmode="numeric"
-                >
-
-                <input
-                    class="otp-input"
-                    maxlength="1"
-                    inputmode="numeric"
-                >
-
-                <input
-                    class="otp-input"
-                    maxlength="1"
-                    inputmode="numeric"
-                >
-
-            </div>
-
-
-            <button
-                class="primary-btn"
-                onclick="verifyOTP()"
-            >
-                تأكيد الرمز
-            </button>
-
-
-            <button
-                class="text-btn"
-                onclick="backToPhone()"
-            >
-                تغيير رقم الهاتف
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================
-     MAIN APP
-========================================= -->
-
-<div
-    id="app"
-    class="hidden"
->
-
-
-    <!-- TOP BAR -->
+<div id="app">
 
     <header class="topbar">
-
         <div class="topbar-inner">
 
             <div class="brand">
+                <div class="brand-icon">F</div>
 
-                <div class="brand-icon">
-                    م
+                <div class="brand-text">
+                    <div
+                        class="brand-name"
+                        id="brandName">
+                        فورسيزن
+                    </div>
+
+                    <div class="brand-sub">
+                        منصة المشاريع والمقاولات
+                    </div>
                 </div>
-
-                <span id="brandName">
-                    مقاولاتي
-                </span>
-
             </div>
-
 
             <div class="top-actions">
 
                 <button
                     class="icon-btn"
-                    onclick="openSearch()"
-                    aria-label="بحث"
-                >
-                    🔍
-                </button>
+                    onclick="go('notifications')"
+                    aria-label="الإشعارات">
 
+                    🔔
+
+                    <span
+                        id="notificationDot"
+                        class="notification-dot hidden">
+                        0
+                    </span>
+
+                </button>
 
                 <button
                     class="icon-btn"
-                    onclick="navigate('profile')"
-                    aria-label="الحساب"
-                >
-                    👤
+                    onclick="openAdminLogin()"
+                    aria-label="الإدارة">
+
+                    ⚙️
+
                 </button>
 
             </div>
 
         </div>
-
     </header>
 
 
-    <!-- =====================================
-         HOME
-    ====================================== -->
+    <!-- HOME -->
 
     <main
-        id="homePage"
-        class="page"
-    >
+        id="home"
+        class="page active">
+
+        <section class="hero">
+
+            <div class="hero-kicker">
+                FOUR SEASONS
+            </div>
+
+            <h1 id="heroTitle">
+                كل مشروع يبدأ من هنا
+            </h1>
+
+            <p id="heroDescription">
+                منصة عصرية لعرض المشاريع والمقاولين
+                والخدمات في مكان واحد.
+            </p>
+
+            <div class="hero-actions">
+
+                <button
+                    class="btn btn-gold"
+                    onclick="go('projects')">
+
+                    استكشف المشاريع
+
+                </button>
+
+                <button
+                    class="btn btn-outline"
+                    onclick="go('contractors')">
+
+                    تصفح المقاولين
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <section class="section">
+
+            <div class="stats">
+
+                <div class="stat">
+                    <div class="stat-icon">🏗️</div>
+
+                    <span
+                        id="homeProjectCount"
+                        class="stat-number">
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        مشروع
+                    </span>
+                </div>
+
+
+                <div class="stat">
+                    <div class="stat-icon">♙</div>
+
+                    <span
+                        id="homeContractorCount"
+                        class="stat-number">
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        مقاول
+                    </span>
+                </div>
+
+
+                <div class="stat">
+                    <div class="stat-icon">🛠️</div>
+
+                    <span
+                        id="homeServiceCount"
+                        class="stat-number">
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        خدمة
+                    </span>
+                </div>
+
+
+                <div class="stat">
+                    <div class="stat-icon">♥</div>
+
+                    <span
+                        id="homeFavoriteCount"
+                        class="stat-number">
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        مفضلة
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="featuredSection"
+            class="section">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>المشاريع المميزة</h2>
+
+                    <p>
+                        مشاريع مختارة من إدارة فورسيزن
+                    </p>
+                </div>
+
+                <button
+                    class="btn btn-outline btn-small"
+                    onclick="go('projects')">
+
+                    عرض الكل
+
+                </button>
+
+            </div>
+
+            <div
+                id="featuredProjects"
+                class="grid">
+            </div>
+
+        </section>
+
+
+        <section
+            id="servicesSection"
+            class="section">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>الخدمات</h2>
+
+                    <p>
+                        تصفح المشاريع حسب نوع الخدمة
+                    </p>
+                </div>
+
+            </div>
+
+            <div
+                id="services"
+                class="chips">
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- PROJECTS -->
+
+    <main
+        id="projects"
+        class="page">
 
         <h1 class="page-title">
             المشاريع
         </h1>
 
-
         <p class="page-subtitle">
-            استكشف المشاريع والفرص المتاحة.
+            ابحث واستكشف المشاريع المنشورة على المنصة.
         </p>
 
+        <div class="search-row">
 
-        <div class="search-box">
+            <div class="search-wrap">
 
-            <input
-                id="homeSearch"
-                class="input"
-                placeholder="ابحث عن مشروع..."
-                oninput="searchFromHome()"
-            >
+                <span>⌕</span>
 
+                <input
+                    id="searchInput"
+                    class="input"
+                    placeholder="ابحث باسم المشروع أو المدينة أو الخدمة..."
+                    oninput="renderProjects()">
+
+            </div>
 
             <button
-                class="filter-btn"
-                onclick="openFilters()"
-            >
-                ⚙ الفلاتر
+                class="btn btn-primary"
+                onclick="clearProjectSearch()">
+
+                مسح
+
             </button>
 
         </div>
 
+        <div
+            id="projectFilters"
+            class="chips">
+        </div>
 
         <div
             id="projectGrid"
-            class="grid"
-        ></div>
-
-    </main>
-
-
-    <!-- =====================================
-         SEARCH
-    ====================================== -->
-
-    <main
-        id="searchPage"
-        class="page hidden"
-    >
-
-        <button
-            class="back-btn"
-            onclick="navigate('home')"
-        >
-            ← رجوع
-        </button>
-
-
-        <h1 class="page-title">
-            البحث
-        </h1>
-
-
-        <p class="page-subtitle">
-            ابحث عن المشاريع حسب الاسم
-            أو الموقع أو الشركة.
-        </p>
-
-
-        <div class="search-box">
-
-            <input
-                id="searchInput"
-                class="input"
-                placeholder="اكتب ما تريد البحث عنه..."
-                oninput="performSearch()"
-            >
-
-
-            <button
-                class="filter-btn"
-                onclick="openFilters()"
-            >
-                فلترة
-            </button>
-
+            class="grid">
         </div>
 
-
-        <div
-            id="searchResults"
-            class="grid"
-        ></div>
-
     </main>
 
 
-    <!-- =====================================
-         PROJECT DETAILS
-    ====================================== -->
+    <!-- CONTRACTORS -->
 
     <main
-        id="projectDetailsPage"
-        class="page hidden"
-    >
-
-        <button
-            class="back-btn"
-            onclick="goBack()"
-        >
-            ← رجوع
-        </button>
-
-
-        <div
-            id="projectDetails"
-        ></div>
-
-    </main>
-
-
-    <!-- =====================================
-         COMPANIES
-    ====================================== -->
-
-    <main
-        id="companiesPage"
-        class="page hidden"
-    >
+        id="contractors"
+        class="page">
 
         <h1 class="page-title">
-            الشركات
+            المقاولون
         </h1>
 
-
         <p class="page-subtitle">
-            استكشف الشركات والجهات المرتبطة
-            بالمشاريع.
+            اكتشف المقاولين والشركات حسب التخصص والموقع.
         </p>
 
+        <div class="search-row">
 
-        <div
-            id="companyGrid"
-            class="grid"
-        ></div>
+            <div class="search-wrap">
 
-    </main>
+                <span>⌕</span>
 
-
-    <!-- =====================================
-         COMPANY DETAILS
-    ====================================== -->
-
-    <main
-        id="companyDetailsPage"
-        class="page hidden"
-    >
-
-        <button
-            class="back-btn"
-            onclick="goBack()"
-        >
-            ← رجوع
-        </button>
-
-
-        <div
-            id="companyDetails"
-        ></div>
-
-    </main>
-
-
-    <!-- =====================================
-         PROFILE
-    ====================================== -->
-
-    <main
-        id="profilePage"
-        class="page hidden"
-    >
-
-        <h1 class="page-title">
-            حسابي
-        </h1>
-
-
-        <p class="page-subtitle">
-            إدارة معلومات حسابك وإعدادات التطبيق.
-        </p>
-
-
-        <div class="profile-card">
-
-            <div class="profile-avatar">
-                👤
-            </div>
-
-
-            <h2 id="profileName">
-                مستخدم
-            </h2>
-
-
-            <p
-                id="profilePhone"
-                style="
-                    color:var(--muted);
-                    margin-top:7px;
-                "
-            ></p>
-
-
-            <div class="menu-list">
-
-                <button
-                    class="menu-item"
-                    onclick="navigate('settings')"
-                >
-
-                    <span>
-                        ⚙ الإعدادات
-                    </span>
-
-                    <span>
-                        ←
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="menu-item"
-                    onclick="navigate('language')"
-                >
-
-                    <span>
-                        🌐 اللغة
-                    </span>
-
-                    <span id="currentLanguage">
-                        العربية
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="menu-item"
-                    onclick="logout()"
-                    style="color:var(--danger);"
-                >
-
-                    <span>
-                        🚪 تسجيل الخروج
-                    </span>
-
-                    <span>
-                        ←
-                    </span>
-
-                </button>
+                <input
+                    id="contractorSearch"
+                    class="input"
+                    placeholder="ابحث عن مقاول أو شركة..."
+                    oninput="renderContractors()">
 
             </div>
 
-        </div>
-
-    </main>
-
-
-    <!-- =====================================
-         SETTINGS
-    ====================================== -->
-
-    <main
-        id="settingsPage"
-        class="page hidden"
-    >
-
-        <button
-            class="back-btn"
-            onclick="navigate('profile')"
-        >
-            ← رجوع
-        </button>
-
-
-        <h1 class="page-title">
-            الإعدادات
-        </h1>
-
-
-        <p class="page-subtitle">
-            تخصيص تجربة استخدام التطبيق.
-        </p>
-
-
-        <div class="profile-card">
-
-            <div class="menu-list">
-
-                <button
-                    class="menu-item"
-                    onclick="navigate('language')"
-                >
-
-                    <span>
-                        🌐 اللغة
-                    </span>
-
-                    <span>
-                        →
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="menu-item"
-                    onclick="showAbout()"
-                >
-
-                    <span>
-                        ℹ️ عن التطبيق
-                    </span>
-
-                    <span>
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- =====================================
-         LANGUAGE
-    ====================================== -->
-
-    <main
-        id="languagePage"
-        class="page hidden"
-    >
-
-        <button
-            class="back-btn"
-            onclick="navigate('profile')"
-        >
-            ← رجوع
-        </button>
-
-
-        <h1 class="page-title">
-            اللغة
-        </h1>
-
-
-        <p class="page-subtitle">
-            اختر لغة التطبيق.
-        </p>
-
-
-        <div class="profile-card">
-
-            <div class="menu-list">
-
-                <button
-                    class="menu-item"
-                    onclick="setLanguage('ar')"
-                >
-
-                    <span>
-                        🇮🇶 العربية
-                    </span>
-
-                    <span>
-                        →
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="menu-item"
-                    onclick="setLanguage('en')"
-                >
-
-                    <span>
-                        🇬🇧 English
-                    </span>
-
-                    <span>
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- =====================================
-         BOTTOM NAV
-    ====================================== -->
-
-    <nav class="bottom-nav">
-
-        <div class="bottom-nav-inner">
-
             <button
-                class="nav-item active"
-                data-page="home"
-                onclick="navigate('home')"
-            >
+                class="btn btn-primary"
+                onclick="clearContractorSearch()">
 
-                <span>
-                    🏠
-                </span>
-
-                الرئيسية
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-page="companies"
-                onclick="navigate('companies')"
-            >
-
-                <span>
-                    🏢
-                </span>
-
-                الشركات
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-page="search"
-                onclick="navigate('search')"
-            >
-
-                <span>
-                    🔎
-                </span>
-
-                البحث
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-page="profile"
-                onclick="navigate('profile')"
-            >
-
-                <span>
-                    👤
-                </span>
-
-                حسابي
+                مسح
 
             </button>
 
         </div>
-
-    </nav>
-
-</div>
-
-
-<!-- =========================================
-     FILTER MODAL
-========================================= -->
-
-<div
-    id="filterModal"
-    class="modal hidden"
->
-
-    <div
-        class="modal-card"
-        onclick="event.stopPropagation()"
-    >
-
-        <div class="modal-header">
-
-            <h2>
-                الفلاتر
-            </h2>
-
-
-            <button
-                class="modal-close"
-                onclick="closeFilters()"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                المحافظة
-            </label>
-
-
-            <select
-                id="filterLocation"
-                class="input"
-            >
-
-                <option value="">
-                    الكل
-                </option>
-
-                <option value="بغداد">
-                    بغداد
-                </option>
-
-                <option value="البصرة">
-                    البصرة
-                </option>
-
-                <option value="نينوى">
-                    نينوى
-                </option>
-
-                <option value="أربيل">
-                    أربيل
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                حالة المشروع
-            </label>
-
-
-            <select
-                id="filterStatus"
-                class="input"
-            >
-
-                <option value="">
-                    الكل
-                </option>
-
-                <option value="open">
-                    مفتوح
-                </option>
-
-                <option value="closed">
-                    مغلق
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                الشركة
-            </label>
-
-
-            <select
-                id="filterCompany"
-                class="input"
-            >
-
-                <option value="">
-                    كل الشركات
-                </option>
-
-            </select>
-
-        </div>
-
 
         <div
-            style="
-                display:flex;
-                gap:10px;
-            "
-        >
-
-            <button
-                class="secondary-btn"
-                style="flex:1;"
-                onclick="resetFilters()"
-            >
-                إعادة ضبط
-            </button>
-
-
-            <button
-                class="primary-btn"
-                style="flex:1;"
-                onclick="applyFilters()"
-            >
-                تطبيق
-            </button>
-
+            id="contractorGrid"
+            class="grid">
         </div>
 
-    </div>
-
-</div>
+    </main>
 
 
-<!-- =========================================
-     GENERAL MODAL
-========================================= -->
+    <!-- FAVORITES -->
 
-<div
-    id="generalModal"
-    class="modal hidden"
->
+    <main
+        id="favorites"
+        class="page">
 
-    <div
-        class="modal-card"
-        onclick="event.stopPropagation()"
-    >
+        <h1 class="page-title">
+            المفضلة
+        </h1>
 
-        <div class="modal-header">
-
-            <h2 id="generalModalTitle">
-                معلومات
-            </h2>
-
-
-            <button
-                class="modal-close"
-                onclick="closeGeneralModal()"
-            >
-                ×
-            </button>
-
-        </div>
-
+        <p class="page-subtitle">
+            المشاريع والمقاولون الذين حفظتهم.
+        </p>
 
         <div
-            id="generalModalBody"
-        ></div>
+            id="favoritesGrid"
+            class="grid">
+        </div>
 
-    </div>
+    </main>
 
-             </div>     
-    <script>
 
-/* =========================================
-   APPLICATION STATE
-========================================= */
+    <!-- NOTIFICATIONS -->
 
-const state = {
+    <main
+        id="notifications"
+        class="page">
 
-    currentPage:
-        "home",
+        <div class="section-head">
 
-    previousPage:
-        "home",
+            <div>
+                <h1 class="page-title">
+                    الإشعارات
+                </h1>
 
-    selectedProject:
-        null,
+                <p class="page-subtitle">
+                    آخر التنبيهات والتحديثات.
+                </p>
+            </div>
 
-    selectedCompany:
-        null,
+            <button
+                class="btn btn-outline"
+                onclick="markAllNotificationsRead()">
 
-    searchQuery:
-        "",
+                تحديد الكل كمقروء
 
-    filters: {
+            </button>
 
-        location:
-            "",
+        </div>
 
-        status:
-            "",
+        <div
+            id="notificationsList">
+        </div>
 
-        company:
-            ""
+    </main>
 
-    },
 
-    language:
-        localStorage.getItem("language")
-        || "ar",
+    <!-- ADMIN -->
 
-    user:
-        JSON.parse(
-            localStorage.getItem("user")
-            || "null"
-        )
+    <main
+        id="admin"
+        class="page">
 
-};
+        <div class="section-head">
 
+            <div>
+                <h1 class="page
+        /* =========================
+   PROJECT FILTERS
+========================= */
 
-/* =========================================
-   COMPANIES DATA
-========================================= */
+function renderProjectFilters(){
 
-const companies = [
-
-    {
-
-        id:
-            1,
-
-        name:
-            "شركة البناء الحديثة",
-
-        location:
-            "بغداد",
-
-        description:
-            "شركة متخصصة في تنفيذ المشاريع الإنشائية والبنية التحتية.",
-
-        logo:
-            "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=300&q=80"
-
-    },
-
-
-    {
-
-        id:
-            2,
-
-        name:
-            "شركة العراق للمقاولات",
-
-        location:
-            "البصرة",
-
-        description:
-            "شركة تعمل في مجال المقاولات العامة والمشاريع الهندسية.",
-
-        logo:
-            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=300&q=80"
-
-    },
-
-
-    {
-
-        id:
-            3,
-
-        name:
-            "شركة المستقبل الهندسية",
-
-        location:
-            "نينوى",
-
-        description:
-            "متخصصة في المشاريع الهندسية والخدمات الإنشائية.",
-
-        logo:
-            "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=300&q=80"
-
-    },
-
-
-    {
-
-        id:
-            4,
-
-        name:
-            "شركة الرافدين",
-
-        location:
-            "أربيل",
-
-        description:
-            "شركة تعمل في تطوير وتنفيذ المشاريع المختلفة.",
-
-        logo:
-            "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=300&q=80"
-
-    }
-
-];
-
-
-/* =========================================
-   PROJECTS DATA
-========================================= */
-
-const projects = [
-
-    {
-
-        id:
-            1,
-
-        title:
-            "إنشاء وتطوير طريق رئيسي",
-
-        location:
-            "بغداد",
-
-        companyId:
-            1,
-
-        status:
-            "open",
-
-        category:
-            "طرق وبنية تحتية",
-
-        date:
-            "2026-08-10",
-
-        deadline:
-            "2026-09-30",
-
-        image:
-            "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "مشروع لإنشاء وتطوير طريق رئيسي يتضمن أعمال البنية التحتية والتبليط والتأهيل."
-
-    },
-
-
-    {
-
-        id:
-            2,
-
-        title:
-            "إنشاء مبنى خدمي",
-
-        location:
-            "البصرة",
-
-        companyId:
-            2,
-
-        status:
-            "open",
-
-        category:
-            "إنشاءات",
-
-        date:
-            "2026-08-08",
-
-        deadline:
-            "2026-10-15",
-
-        image:
-            "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "مشروع إنشاء مبنى خدمي متكامل مع الأعمال الكهربائية والميكانيكية."
-
-    },
-
-
-    {
-
-        id:
-            3,
-
-        title:
-            "تأهيل مدرسة",
-
-        location:
-            "نينوى",
-
-        companyId:
-            3,
-
-        status:
-            "open",
-
-        category:
-            "مبانٍ",
-
-        date:
-            "2026-08-01",
-
-        deadline:
-            "2026-09-20",
-
-        image:
-            "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "مشروع لتأهيل مبنى مدرسي وتحسين مرافقه وخدماته."
-
-    },
-
-
-    {
-
-        id:
-            4,
-
-        title:
-            "تطوير مركز صحي",
-
-        location:
-            "أربيل",
-
-        companyId:
-            4,
-
-        status:
-            "closed",
-
-        category:
-            "صحة",
-
-        date:
-            "2026-07-20",
-
-        deadline:
-            "2026-08-15",
-
-        image:
-            "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "مشروع تطوير وتأهيل مركز صحي وتجهيز مرافقه."
-
-    },
-
-
-    {
-
-        id:
-            5,
-
-        title:
-            "مشروع بنية تحتية",
-
-        location:
-            "بغداد",
-
-        companyId:
-            1,
-
-        status:
-            "open",
-
-        category:
-            "بنية تحتية",
-
-        date:
-            "2026-08-12",
-
-        deadline:
-            "2026-11-01",
-
-        image:
-            "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "أعمال تطوير للبنية التحتية وشبكات الخدمات."
-
-    },
-
-
-    {
-
-        id:
-            6,
-
-        title:
-            "تطوير مجمع تجاري",
-
-        location:
-            "البصرة",
-
-        companyId:
-            2,
-
-        status:
-            "open",
-
-        category:
-            "تجاري",
-
-        date:
-            "2026-08-14",
-
-        deadline:
-            "2026-12-10",
-
-        image:
-            "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80",
-
-        description:
-            "مشروع تطوير وإنشاء مجمع تجاري حديث."
-
-    }
-
-];
-
-
-/* =========================================
-   HELPER FUNCTIONS
-========================================= */
-
-function getCompany(companyId) {
-
-    return companies.find(
-        company =>
-            company.id === companyId
-    );
-
-}
-
-
-function formatDate(date) {
-
-    if (!date) {
-        return "-";
-    }
-
-
-    return new Date(date)
-        .toLocaleDateString(
-            state.language === "ar"
-                ? "ar-IQ"
-                : "en-US"
+    const container =
+        document.getElementById(
+            "projectFilters"
         );
 
-}
+    if(!container) return;
 
 
-/* =========================================
-   PAGE MANAGEMENT
-========================================= */
-
-const pages = [
-
-    "home",
-
-    "search",
-
-    "projectDetails",
-
-    "companies",
-
-    "companyDetails",
-
-    "profile",
-
-    "settings",
-
-    "language"
-
-];
+    const services = [
+        "الكل",
+        ...new Set(
+            data.projects.map(
+                project =>
+                    project.service
+            )
+        )
+    ];
 
 
-function getPageElement(page) {
+    container.innerHTML =
+        services
+            .map(
+                service => `
 
-    const map = {
+                    <button
+                        class="chip ${
+                            projectFilter ===
+                            service
+                                ? "active"
+                                : ""
+                        }"
+                        onclick="
+                            setProjectFilter(
+                                ${JSON.stringify(service)}
+                            )
+                        ">
 
-        home:
-            "homePage",
+                        ${escapeHTML(
+                            service
+                        )}
 
-        search:
-            "searchPage",
+                    </button>
 
-        projectDetails:
-            "projectDetailsPage",
-
-        companies:
-            "companiesPage",
-
-        companyDetails:
-            "companyDetailsPage",
-
-        profile:
-            "profilePage",
-
-        settings:
-            "settingsPage",
-
-        language:
-            "languagePage"
-
-    };
-
-
-    return document.getElementById(
-        map[page]
-    );
+                `
+            )
+            .join("");
 
 }
 
 
-function navigate(page) {
+function setProjectFilter(filter){
 
-    if (!pages.includes(page)) {
-        return;
-    }
+    projectFilter =
+        filter;
 
+    renderProjects();
 
-    state.previousPage =
-        state.currentPage;
-
-
-    state.currentPage =
-        page;
+}
 
 
-    pages.forEach(
-        pageName => {
+/* =========================
+   PROJECTS
+========================= */
 
-            const element =
-                getPageElement(
-                    pageName
-                );
+function renderProjects(){
 
-
-            if (!element) {
-                return;
-            }
+    renderProjectFilters();
 
 
-            element.classList.toggle(
+    const search =
+        (
+            document.getElementById(
+                "searchInput"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
-                "hidden",
 
-                pageName !== page
+    let projects =
+        [...data.projects];
 
+
+    if(
+        projectFilter !==
+        "الكل"
+    ){
+
+        projects =
+            projects.filter(
+                project =>
+                    project.service ===
+                    projectFilter
             );
 
-        }
-    );
+    }
 
 
-    document
-        .querySelectorAll(".nav-item")
-        .forEach(item => {
+    if(search){
 
-            item.classList.toggle(
+        projects =
+            projects.filter(
+                project => {
 
-                "active",
+                    const text = [
+                        project.title,
+                        project.city,
+                        project.service,
+                        project.description,
+                        project.status
+                    ]
+                    .join(" ")
+                    .toLowerCase();
 
-                item.dataset.page === page
+                    return text.includes(
+                        search
+                    );
 
+                }
             );
 
-        });
-
-
-    if (page === "home") {
-
-        renderProjects();
-
     }
 
-
-    if (page === "companies") {
-
-        renderCompanies();
-
-    }
-
-
-    if (page === "profile") {
-
-        renderProfile();
-
-    }
-
-
-    if (page === "search") {
-
-        performSearch();
-
-    }
-
-
-    window.scrollTo({
-
-        top:
-            0,
-
-        behavior:
-            "smooth"
-
-    });
-
-}
-
-
-function goBack() {
-
-    navigate(
-        state.previousPage
-        || "home"
-    );
-
-}
-
-
-/* =========================================
-   DEMO OTP
-========================================= */
-
-let demoOTP = "";
-
-
-function sendOTP() {
-
-    const phone =
-        document
-            .getElementById(
-                "phoneInput"
-            )
-            .value
-            .trim();
-
-
-    const error =
-        document.getElementById(
-            "authError"
-        );
-
-
-    if (!phone) {
-
-        error.textContent =
-            "يرجى إدخال رقم الهاتف.";
-
-        error.classList.remove(
-            "hidden"
-        );
-
-        return;
-
-    }
-
-
-    if (phone.length < 8) {
-
-        error.textContent =
-            "رقم الهاتف غير صحيح.";
-
-        error.classList.remove(
-            "hidden"
-        );
-
-        return;
-
-    }
-
-
-    error.classList.add(
-        "hidden"
-    );
-
-
-    demoOTP =
-        String(
-
-            Math.floor(
-
-                10000
-                +
-                Math.random()
-                * 90000
-
-            )
-
-        );
-
-
-    alert(
-        "رمز التحقق التجريبي هو: "
-        +
-        demoOTP
-    );
-
-
-    document
-        .getElementById(
-            "phoneStep"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "otpStep"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    document
-        .querySelector(
-            ".otp-input"
-        )
-        .focus();
-
-}
-
-
-function verifyOTP() {
-
-    const inputs =
-        document.querySelectorAll(
-            ".otp-input"
-        );
-
-
-    let entered = "";
-
-
-    inputs.forEach(
-        input => {
-
-            entered +=
-                input.value;
-
-        }
-    );
-
-
-    const error =
-        document.getElementById(
-            "authError"
-        );
-
-
-    if (entered !== demoOTP) {
-
-        error.textContent =
-            "رمز التحقق غير صحيح.";
-
-        error.classList.remove(
-            "hidden"
-        );
-
-        return;
-
-    }
-
-
-    const phone =
-        document
-            .getElementById(
-                "phoneInput"
-            )
-            .value
-            .trim();
-
-
-    state.user = {
-
-        id:
-            Date.now(),
-
-        name:
-            "مستخدم جديد",
-
-        phone:
-            phone
-
-    };
-
-
-    localStorage.setItem(
-
-        "user",
-
-        JSON.stringify(
-            state.user
-        )
-
-    );
-
-
-    document
-        .getElementById(
-            "authScreen"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "app"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    navigate("home");
-
-}
-
-
-function backToPhone() {
-
-    document
-        .getElementById(
-            "otpStep"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "phoneStep"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "authError"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-}
-
-
-/* =========================================
-   PROJECT CARDS
-========================================= */
-
-function renderProjects(
-    list = projects
-) {
 
     const grid =
         document.getElementById(
@@ -3341,116 +1314,172 @@ function renderProjects(
         );
 
 
-    if (!list.length) {
-
-        grid.innerHTML = `
-
-            <div
-                class="empty-state"
-                style="grid-column:1/-1;"
-            >
-
-                <div class="empty-icon">
-                    📭
-                </div>
-
-                <h3>
-                    لا توجد مشاريع
-                </h3>
-
-                <p
-                    style="margin-top:8px;"
-                >
-                    لم نجد مشاريع مطابقة
-                    للبحث.
-                </p>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
+    if(!grid) return;
 
 
     grid.innerHTML =
-        list
-            .map(projectCard)
-            .join("");
+        projects.length
+            ? projects
+                .map(projectCard)
+                .join("")
+            : emptyState(
+                "لم نجد مشاريع",
+                "جرّب كلمة بحث أخرى أو غيّر الفلتر."
+            );
 
 }
 
 
-function projectCard(project) {
+function clearProjectSearch(){
 
-    const company =
-        getCompany(
-            project.companyId
+    const input =
+        document.getElementById(
+            "searchInput"
         );
 
+    if(input){
 
-    const statusText =
-        project.status === "open"
-            ? "مفتوح"
-            : "مغلق";
+        input.value = "";
+
+    }
+
+    projectFilter =
+        "الكل";
+
+    renderProjects();
+
+}
+
+
+/* =========================
+   CONTRACTOR CARD
+========================= */
+
+function contractorCard(
+    contractor
+){
+
+    const favorite =
+        data.favorites.includes(
+            "contractor-" +
+            contractor.id
+        );
 
 
     return `
 
-        <article
-            class="project-card"
-            onclick="openProject(${project.id})"
-        >
+        <article class="card">
 
-            <img
-                class="project-image"
-                src="${project.image}"
-                alt="${project.title}"
-                loading="lazy"
-            >
+            <div class="card-image">
 
-
-            <div class="project-content">
-
-                <h2 class="project-title">
-                    ${project.title}
-                </h2>
-
-
-                <div class="meta">
-                    📍 ${project.location}
-                </div>
-
-
-                <div class="meta">
-                    🏢
-                    ${
-                        company
-                            ? company.name
-                            : "-"
-                    }
-                </div>
-
-
-                <div class="meta">
-                    📅
-                    ${formatDate(project.date)}
-                </div>
-
-
-                <span
-                    class="
-                        status
-                        ${
-                            project.status === "open"
-                                ? "status-open"
-                                : "status-closed"
-                        }
-                    "
-                >
-                    ${statusText}
+                <span>
+                    ${escapeHTML(
+                        contractor.emoji ||
+                        "♙"
+                    )}
                 </span>
+
+                <span class="badge">
+
+                    ${escapeHTML(
+                        contractor.badge ||
+                        "مقاول"
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="card-title">
+
+                    ${escapeHTML(
+                        contractor.name
+                    )}
+
+                </div>
+
+
+                <div class="meta">
+
+                    <span>
+                        📍
+                        ${escapeHTML(
+                            contractor.city
+                        )}
+                    </span>
+
+                    <span>
+                        🛠️
+                        ${escapeHTML(
+                            contractor.specialty
+                        )}
+                    </span>
+
+                </div>
+
+
+                <div
+                    style="
+                        margin-top:11px;
+                        font-weight:950;
+                    ">
+
+                    ⭐
+                    ${Number(
+                        contractor.rating || 0
+                    ).toFixed(1)}
+
+                    <span
+                        style="
+                            color:var(--muted);
+                            font-size:12px;
+                            font-weight:700;
+                        ">
+
+                        ·
+                        ${contractor.projects || 0}
+                        مشروع
+
+                    </span>
+
+                </div>
+
+
+                <div class="card-actions">
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="
+                            openContractorDetails(
+                                ${contractor.id}
+                            )
+                        ">
+
+                        الملف
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-outline"
+                        onclick="
+                            toggleFavorite(
+                                'contractor-${contractor.id}'
+                            )
+                        ">
+
+                        ${
+                            favorite
+                                ? "♥ محفوظ"
+                                : "♡ حفظ"
+                        }
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -3461,160 +1490,2028 @@ function projectCard(project) {
 }
 
 
-/* =========================================
-   PROJECT DETAILS
-========================================= */
+/* =========================
+   CONTRACTORS
+========================= */
 
-function openProject(id) {
+function renderContractors(){
+
+    const search =
+        (
+            document.getElementById(
+                "contractorSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    let contractors =
+        [...data.contractors];
+
+
+    if(search){
+
+        contractors =
+            contractors.filter(
+                contractor => {
+
+                    const text = [
+                        contractor.name,
+                        contractor.city,
+                        contractor.specialty,
+                        contractor.badge
+                    ]
+                    .join(" ")
+                    .toLowerCase();
+
+                    return text.includes(
+                        search
+                    );
+
+                }
+            );
+
+    }
+
+
+    const grid =
+        document.getElementById(
+            "contractorGrid"
+        );
+
+
+    if(!grid) return;
+
+
+    grid.innerHTML =
+        contractors.length
+            ? contractors
+                .map(contractorCard)
+                .join("")
+            : emptyState(
+                "لا توجد نتائج",
+                "جرّب البحث باسم آخر."
+            );
+
+}
+
+
+function clearContractorSearch(){
+
+    const input =
+        document.getElementById(
+            "contractorSearch"
+        );
+
+    if(input){
+
+        input.value = "";
+
+    }
+
+    renderContractors();
+
+}
+
+
+/* =========================
+   FAVORITES
+========================= */
+
+function toggleFavorite(key){
+
+    const index =
+        data.favorites.indexOf(
+            key
+        );
+
+
+    if(index === -1){
+
+        data.favorites.push(
+            key
+        );
+
+        showToast(
+            "تمت الإضافة إلى المفضلة ♥"
+        );
+
+    }else{
+
+        data.favorites.splice(
+            index,
+            1
+        );
+
+        showToast(
+            "تمت الإزالة من المفضلة"
+        );
+
+    }
+
+
+    saveData();
+
+    refreshVisiblePage();
+
+    renderHome();
+
+}
+
+
+function renderFavorites(){
+
+    const grid =
+        document.getElementById(
+            "favoritesGrid"
+        );
+
+
+    if(!grid) return;
+
+
+    const projectIds =
+        data.favorites
+            .filter(
+                key =>
+                    key.startsWith(
+                        "project-"
+                    )
+            )
+            .map(
+                key =>
+                    Number(
+                        key.replace(
+                            "project-",
+                            ""
+                        )
+                    )
+            );
+
+
+    const contractorIds =
+        data.favorites
+            .filter(
+                key =>
+                    key.startsWith(
+                        "contractor-"
+                    )
+            )
+            .map(
+                key =>
+                    Number(
+                        key.replace(
+                            "contractor-",
+                            ""
+                        )
+                    )
+            );
+
+
+    const projects =
+        data.projects.filter(
+            project =>
+                projectIds.includes(
+                    project.id
+                )
+        );
+
+
+    const contractors =
+        data.contractors.filter(
+            contractor =>
+                contractorIds.includes(
+                    contractor.id
+                )
+        );
+
+
+    let html = "";
+
+
+    if(projects.length){
+
+        html +=
+            projects
+                .map(projectCard)
+                .join("");
+
+    }
+
+
+    if(contractors.length){
+
+        html +=
+            contractors
+                .map(contractorCard)
+                .join("");
+
+    }
+
+
+    grid.innerHTML =
+        html ||
+        emptyState(
+            "المفضلة فارغة",
+            "اضغط على زر الحفظ في أي مشروع أو مقاول."
+        );
+
+}
+
+
+/* =========================
+   PROJECT DETAILS
+========================= */
+
+function openProjectDetails(id){
 
     const project =
-        projects.find(
+        data.projects.find(
             item =>
                 item.id === id
         );
 
 
-    if (!project) {
+    if(!project){
+
+        showToast(
+            "المشروع غير موجود"
+        );
+
         return;
+
     }
 
 
-    state.selectedProject =
-        project;
+    project.views =
+        Number(
+            project.views || 0
+        ) + 1;
 
 
-    const company =
-        getCompany(
-            project.companyId
+    saveData();
+
+
+    const favorite =
+        data.favorites.includes(
+            "project-" +
+            project.id
         );
 
+
+    openModal(`
+
+        <div class="dialog">
+
+            <div class="dialog-head">
+
+                <h2>
+                    ${escapeHTML(
+                        project.title
+                    )}
+                </h2>
+
+                <button
+                    class="close-button"
+                    onclick="closeModal()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <div
+                class="card-image"
+                style="
+                    border-radius:18px;
+                    margin-bottom:15px;
+                ">
+
+                ${escapeHTML(
+                    project.emoji ||
+                    "🏗️"
+                )}
+
+            </div>
+
+
+            <div class="meta">
+
+                <span>
+                    📍
+                    ${escapeHTML(
+                        project.city
+                    )}
+                </span>
+
+                <span>
+                    🛠️
+                    ${escapeHTML(
+                        project.service
+                    )}
+                </span>
+
+                <span>
+                    ⏱️
+                    ${escapeHTML(
+                        project.duration
+                    )}
+                </span>
+
+            </div>
+
+
+            <div
+                class="card-price"
+                style="
+                    font-size:26px;
+                ">
+
+                ${formatMoney(
+                    project.budget
+                )}
+
+            </div>
+
+
+            <p
+                style="
+                    margin-top:13px;
+                    color:var(--muted);
+                    line-height:1.9;
+                ">
+
+                ${escapeHTML(
+                    project.description
+                )}
+
+            </p>
+
+
+            <div
+                class="notice"
+                style="
+                    margin-top:15px;
+                ">
+
+                الحالة:
+                <strong>
+                    ${escapeHTML(
+                        project.status
+                    )}
+                </strong>
+
+                <br>
+
+                المشاهدات:
+                ${project.views || 0}
+
+                <br>
+
+                الإعجابات:
+                ${project.likes || 0}
+
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="
+                        toggleFavorite(
+                            'project-${project.id}'
+                        );
+                        closeModal();
+                    ">
+
+                    ${
+                        favorite
+                            ? "إزالة من المفضلة"
+                            : "إضافة للمفضلة"
+                    }
+
+                </button>
+
+
+                <button
+                    class="btn btn-outline"
+                    onclick="closeModal()">
+
+                    إغلاق
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `);
+
+}
+
+
+/* =========================
+   CONTRACTOR DETAILS
+========================= */
+
+function openContractorDetails(id){
+
+    const contractor =
+        data.contractors.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!contractor){
+
+        showToast(
+            "المقاول غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const favorite =
+        data.favorites.includes(
+            "contractor-" +
+            contractor.id
+        );
+
+
+    openModal(`
+
+        <div class="dialog">
+
+            <div class="dialog-head">
+
+                <h2>
+                    ملف المقاول
+                </h2>
+
+                <button
+                    class="close-button"
+                    onclick="closeModal()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <div
+                style="
+                    text-align:center;
+                    padding:10px 0 18px;
+                ">
+
+                <div
+                    style="
+                        width:95px;
+                        height:95px;
+                        margin:auto;
+                        border-radius:28px;
+                        display:grid;
+                        place-items:center;
+                        background:var(--surface2);
+                        font-size:48px;
+                    ">
+
+                    ${escapeHTML(
+                        contractor.emoji ||
+                        "♙"
+                    )}
+
+                </div>
+
+
+                <h2
+                    style="
+                        margin-top:13px;
+                    ">
+
+                    ${escapeHTML(
+                        contractor.name
+                    )}
+
+                </h2>
+
+
+                <p
+                    style="
+                        color:var(--muted);
+                        margin-top:5px;
+                    ">
+
+                    ${escapeHTML(
+                        contractor.specialty
+                    )}
+
+                </p>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <span class="stat-number">
+                        ${Number(
+                            contractor.rating ||
+                            0
+                        ).toFixed(1)}
+                    </span>
+
+                    <span class="stat-label">
+                        التقييم ⭐
+                    </span>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <span class="stat-number">
+                        ${contractor.projects || 0}
+                    </span>
+
+                    <span class="stat-label">
+                        المشاريع
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="notice"
+                style="
+                    margin-top:15px;
+                ">
+
+                📍 الموقع:
+                ${escapeHTML(
+                    contractor.city
+                )}
+
+                <br>
+
+                🏷️ الشارة:
+                ${escapeHTML(
+                    contractor.badge ||
+                    "مقاول"
+                )}
+
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="
+                        toggleFavorite(
+                            'contractor-${contractor.id}'
+                        );
+                        closeModal();
+                    ">
+
+                    ${
+                        favorite
+                            ? "إزالة من المفضلة"
+                            : "حفظ المقاول"
+                    }
+
+                </button>
+
+
+                <button
+                    class="btn btn-outline"
+                    onclick="closeModal()">
+
+                    إغلاق
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `);
+
+}
+
+
+/* =========================
+   NOTIFICATIONS
+========================= */
+
+function renderNotifications(){
 
     const container =
         document.getElementById(
-            "projectDetails"
+            "notificationsList"
         );
 
 
-    container.innerHTML = `
-
-        <div class="detail-card">
-
-            <img
-                class="detail-image"
-                src="${project.image}"
-                alt="${project.title}"
-            >
+    if(!container) return;
 
 
-            <div class="detail-body">
+    if(
+        !data.notifications.length
+    ){
 
-                <h1 class="detail-title">
-                    ${project.title}
-                </h1>
+        container.innerHTML =
+            emptyState(
+                "لا توجد إشعارات",
+                "ستظهر التنبيهات الجديدة هنا."
+            );
+
+        return;
+
+    }
 
 
-                <div class="meta">
-                    📍 الموقع:
-                    ${project.location}
+    container.innerHTML =
+        data.notifications
+            .map(
+                notification => `
+
+                    <div
+                        class="card"
+                        style="
+                            margin-bottom:12px;
+                            border-color:${
+                                notification.read
+                                    ? "var(--border)"
+                                    : "rgba(11,118,110,.35)"
+                            };
+                        ">
+
+                        <div class="card-body">
+
+                            <div
+                                style="
+                                    display:flex;
+                                    justify-content:space-between;
+                                    gap:10px;
+                                ">
+
+                                <div
+                                    class="card-title">
+
+                                    ${escapeHTML(
+                                        notification.title
+                                    )}
+
+                                </div>
+
+                                ${
+                                    notification.read
+                                        ? ""
+                                        : `
+                                            <span
+                                                class="badge"
+                                                style="
+                                                    background:var(--primary);
+                                                    color:#fff;
+                                                    height:max-content;
+                                                ">
+
+                                                جديد
+
+                                            </span>
+                                        `
+                                }
+
+                            </div>
+
+
+                            <p
+                                class="card-description">
+
+                                ${escapeHTML(
+                                    notificatio            
+                                /* =========================
+   EDIT PROJECT
+========================= */
+
+function openProjectEdit(id){
+
+    const project =
+        data.projects.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!project) return;
+
+
+    openModal(`
+
+        <div class="dialog">
+
+            <div class="dialog-head">
+
+                <h2>
+                    تعديل المشروع
+                </h2>
+
+                <button
+                    class="close-button"
+                    onclick="closeModal()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form
+                onsubmit="
+                    saveProjectEdit(
+                        event,
+                        ${project.id}
+                    )
+                ">
+
+                <div class="form-grid">
+
+                    <div class="field full">
+
+                        <label>
+                            الاسم
+                        </label>
+
+                        <input
+                            id="editTitle"
+                            class="input"
+                            value="${escapeHTML(
+                                project.title
+                            )}"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            المدينة
+                        </label>
+
+                        <input
+                            id="editCity"
+                            class="input"
+                            value="${escapeHTML(
+                                project.city
+                            )}"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الخدمة
+                        </label>
+
+                        <select
+                            id="editService"
+                            class="input">
+
+                            ${
+                                data.services
+                                    .map(
+                                        service => `
+
+                                            <option
+                                                ${
+                                                    service ===
+                                                    project.service
+                                                        ? "selected"
+                                                        : ""
+                                                }>
+
+                                                ${escapeHTML(
+                                                    service
+                                                )}
+
+                                            </option>
+
+                                        `
+                                    )
+                                    .join("")
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الميزانية
+                        </label>
+
+                        <input
+                            id="editBudget"
+                            class="input"
+                            type="number"
+                            value="${project.budget}"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            المدة
+                        </label>
+
+                        <input
+                            id="editDuration"
+                            class="input"
+                            value="${escapeHTML(
+                                project.duration
+                            )}"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الحالة
+                        </label>
+
+                        <select
+                            id="editStatus"
+                            class="input">
+
+                            ${
+                                [
+                                    "مفتوح",
+                                    "قيد التنفيذ",
+                                    "مكتمل",
+                                    "متوقف"
+                                ]
+                                .map(
+                                    status => `
+
+                                        <option
+                                            ${
+                                                status ===
+                                                project.status
+                                                    ? "selected"
+                                                    : ""
+                                            }>
+
+                                            ${status}
+
+                                        </option>
+
+                                    `
+                                )
+                                .join("")
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الأيقونة
+                        </label>
+
+                        <input
+                            id="editEmoji"
+                            class="input"
+                            value="${escapeHTML(
+                                project.emoji ||
+                                "🏗️"
+                            )}">
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            الوصف
+                        </label>
+
+                        <textarea
+                            id="editDescription"
+                            class="input"
+                            required>${escapeHTML(
+                                project.description
+                            )}</textarea>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label
+                            style="
+                                display:flex;
+                                align-items:center;
+                                gap:8px;
+                            ">
+
+                            <input
+                                id="editFeatured"
+                                type="checkbox"
+                                ${
+                                    project.featured
+                                        ? "checked"
+                                        : ""
+                                }>
+
+                            مشروع مميز
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    style="width:100%"
+                    type="submit">
+
+                    حفظ التعديلات
+
+                </button>
+
+            </form>
+
+        </div>
+
+    `);
+
+}
+
+
+function saveProjectEdit(
+    event,
+    id
+){
+
+    event.preventDefault();
+
+
+    const project =
+        data.projects.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!project) return;
+
+
+    project.title =
+        document.getElementById(
+            "editTitle"
+        ).value.trim();
+
+
+    project.city =
+        document.getElementById(
+            "editCity"
+        ).value.trim();
+
+
+    project.service =
+        document.getElementById(
+            "editService"
+        ).value;
+
+
+    project.budget =
+        Number(
+            document.getElementById(
+                "editBudget"
+            ).value
+        ) || 0;
+
+
+    project.duration =
+        document.getElementById(
+            "editDuration"
+        ).value.trim();
+
+
+    project.status =
+        document.getElementById(
+            "editStatus"
+        ).value;
+
+
+    project.emoji =
+        document.getElementById(
+            "editEmoji"
+        ).value.trim() ||
+        "🏗️";
+
+
+    project.description =
+        document.getElementById(
+            "editDescription"
+        ).value.trim();
+
+
+    project.featured =
+        document.getElementById(
+            "editFeatured"
+        ).checked;
+
+
+    saveData();
+
+    closeModal();
+
+    renderAdmin(
+        "projects"
+    );
+
+    renderHome();
+
+    showToast(
+        "تم تعديل المشروع"
+    );
+
+}
+
+
+/* =========================
+   FEATURED / DELETE
+========================= */
+
+function toggleFeatured(id){
+
+    const project =
+        data.projects.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!project) return;
+
+
+    project.featured =
+        !project.featured;
+
+
+    saveData();
+
+    renderAdmin(
+        "projects"
+    );
+
+    renderHome();
+
+    showToast(
+        project.featured
+            ? "تم تمييز المشروع"
+            : "تم إلغاء التمييز"
+    );
+
+}
+
+
+function deleteProject(id){
+
+    const project =
+        data.projects.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!project) return;
+
+
+    if(
+        !confirm(
+            "هل تريد حذف هذا المشروع نهائيًا؟"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    data.projects =
+        data.projects.filter(
+            item =>
+                item.id !== id
+        );
+
+
+    data.favorites =
+        data.favorites.filter(
+            key =>
+                key !==
+                "project-" + id
+        );
+
+
+    saveData();
+
+    renderAdmin(
+        "projects"
+    );
+
+    renderHome();
+
+    showToast(
+        "تم حذف المشروع"
+    );
+
+}
+
+
+/* =========================
+   ADMIN CONTRACTORS
+========================= */
+
+function adminContractors(){
+
+    return `
+
+        <div class="section-head">
+
+            <div>
+
+                <h2>
+                    إدارة المقاولين
+                </h2>
+
+                <p>
+                    إضافة وتعديل وحذف المقاولين.
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-primary"
+                onclick="openContractorForm()">
+
+                ＋ مقاول
+
+            </button>
+
+        </div>
+
+
+        <div class="grid">
+
+            ${
+                data.contractors.length
+                    ? data.contractors
+                        .map(
+                            contractor =>
+                                adminContractorCard(
+                                    contractor
+                                )
+                        )
+                        .join("")
+                    : emptyState(
+                        "لا يوجد مقاولون"
+                    )
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+function adminContractorCard(
+    contractor
+){
+
+    return `
+
+        <article class="card">
+
+            <div class="card-image">
+
+                ${escapeHTML(
+                    contractor.emoji ||
+                    "♙"
+                )}
+
+                <span class="badge">
+
+                    ${escapeHTML(
+                        contractor.badge ||
+                        "مقاول"
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="card-title">
+
+                    ${escapeHTML(
+                        contractor.name
+                    )}
+
                 </div>
 
 
                 <div class="meta">
-                    🏢 الشركة:
-                    ${
-                        company
-                            ? company.name
-                            : "-"
-                    }
-                </div>
 
+                    📍
+                    ${escapeHTML(
+                        contractor.city
+                    )}
 
-                <div class="meta">
-                    🏷 التصنيف:
-                    ${project.category}
-                </div>
+                    ·
 
+                    🛠️
+                    ${escapeHTML(
+                        contractor.specialty
+                    )}
 
-                <div class="meta">
-                    📅 تاريخ النشر:
-                    ${formatDate(project.date)}
-                </div>
-
-
-                <div class="meta">
-                    ⏳ الموعد النهائي:
-                    ${formatDate(project.deadline)}
                 </div>
 
 
                 <div
-                    style="margin-top:15px;"
-                >
+                    style="
+                        margin-top:10px;
+                        font-weight:950;
+                    ">
+
+                    ⭐
+                    ${Number(
+                        contractor.rating ||
+                        0
+                    ).toFixed(1)}
 
                     <span
-                        class="
-                            status
-                            ${
-                                project.status === "open"
-                                    ? "status-open"
-                                    : "status-closed"
-                            }
-                        "
-                    >
+                        style="
+                            color:var(--muted);
+                            font-size:12px;
+                        ">
 
-                        ${
-                            project.status === "open"
-                                ? "مفتوح"
-                                : "مغلق"
-                        }
+                        ·
+                        ${contractor.projects || 0}
+                        مشروع
 
                     </span>
 
                 </div>
 
 
-                <section class="detail-section">
+                <div class="card-actions">
 
-                    <h3>
-                        وصف المشروع
-                    </h3>
+                    <button
+                        class="btn btn-primary"
+                        onclick="
+                            openContractorEdit(
+                                ${contractor.id}
+                            )
+                        ">
 
+                        تعديل
 
-                    <p class="detail-description">
-                        ${project.description}
-                    </p>
-
-                </section>
-
-
-                ${
-                    company
-                        ? `
-
-                            <section
-                                class="detail-section"
-                            >
-
-                                <h3>
-                                    الشركة
-                                </h3>
+                    </button>
 
 
-                                <button
-                                    class="secondary-btn"
-                                    onclick="openCompany(${company.id})"
-                                >
+                    <button
+                        class="btn btn-danger"
+                        onclick="
+                            deleteContractor(
+                                ${contractor.id}
+                            )
+                        ">
 
-                                    🏢
-                                    ${company.name}
+                        حذف
 
-                                </button>
+                    </button>
 
-                            </section>
+                </div>
 
-                        `
-                        : ""
-                }
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =========================
+   ADD CONTRACTOR
+========================= */
+
+function openContractorForm(){
+
+    openModal(`
+
+        <div class="dialog">
+
+            <div class="dialog-head">
+
+                <h2>
+                    إضافة مقاول
+                </h2>
+
+                <button
+                    class="close-button"
+                    onclick="closeModal()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form
+                onsubmit="
+                    submitContractor(event)
+                ">
+
+                <div class="form-grid">
+
+                    <div class="field full">
+
+                        <label>
+                            اسم الشركة / المقاول
+                        </label>
+
+                        <input
+                            id="contractorName"
+                            class="input"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            المدينة
+                        </label>
+
+                        <input
+                            id="contractorCity"
+                            class="input"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            التخصص
+                        </label>
+
+                        <input
+                            id="contractorSpecialty"
+                            class="input"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            التقييم
+                        </label>
+
+                        <input
+                            id="contractorRating"
+                            class="input"
+                            type="number"
+                            min="0"
+                            max="5"
+                            step=".1"
+                            value="5">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            عدد المشاريع
+                        </label>
+
+                        <input
+                            id="contractorProjects"
+                            class="input"
+                            type="number"
+                            min="0"
+                            value="0">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الشارة
+                        </label>
+
+                        <input
+                            id="contractorBadge"
+                            class="input"
+                            value="محترف">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            الأيقونة
+                        </label>
+
+                        <input
+                            id="contractorEmoji"
+                            class="input"
+                            value="♙">
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    style="width:100%"
+                    type="submit">
+
+                    إضافة المقاول
+
+                </button>
+
+            </form>
+
+        </div>
+
+    `);
+
+}
+
+
+function submitContractor(event){
+
+    event.preventDefault();
+
+
+    const contractor = {
+
+        id:uid(),
+
+        name:
+            document.getElementById(
+                "contractorName"
+            ).value.trim(),
+
+        city:
+            document.getElementById(
+                "contractorCity"
+            ).value.trim(),
+
+        specialty:
+            document.getElementById(
+                "contractorSpecialty"
+            ).value.trim(),
+
+        rating:
+            Number(
+                document.getElementById(
+                    "contractorRating"
+                ).value
+            ) || 0,
+
+        projects:
+            Number(
+                document.getElementById(
+                    "contractorProjects"
+                ).value
+            ) || 0,
+
+        badge:
+            document.getElementById(
+                "contractorBadge"
+            ).value.trim() ||
+            "محترف",
+
+        emoji:
+            document.getElementById(
+                "contractorEmoji"
+            ).value.trim() ||
+            "♙"
+
+    };
+
+
+    data.contractors.unshift(
+        contractor
+    );
+
+
+    data.notifications.unshift({
+
+        id:uid(),
+
+        title:"مقاول جديد",
+
+        text:
+            "تمت إضافة " +
+            contractor.name +
+            " إلى المنصة.",
+
+        date:"الآن",
+
+        read:false
+
+    });
+
+
+    saveData();
+
+    closeModal();
+
+    renderAdmin(
+        "contractors"
+    );
+
+    renderContractors();
+
+    renderHome();
+
+    showToast(
+        "تمت إضافة المقاول"
+    );
+
+}
+
+
+/* =========================
+   EDIT CONTRACTOR
+========================= */
+
+function openContractorEdit(id){
+
+    const contractor =
+        data.contractors.find(
+            item =>
+                item.id === id
+        );
+
+
+    if(!contractor) return;
+
+
+    openModal(`
+
+        <div class="dialog">
+
+            <div class="dialog-head">
+
+                <h2>
+                    تعديل المقاول
+                </h2>
+
+                <button
+                    class="close-button"
+                    onclick="closeModal()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form
+                onsubmit="
+                    saveContractorEdit(
+                        event,
+                        ${contractor.id}
+                    )
+                ">
+
+                <div class="form-grid">
+
+                    <div class="field full">
+
+                        <label>
+                            الاسم
+                        </label>
+
+                        <input
+                            id="ceName"
+                            class="input"
+                            value="${escapeHTML(
+                                contractor.name
+                            )}"
+                            required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            المدينة
+                        </label>
+
+                        <input
+                            id="ceCity"
+                            class="input"
+                            value="${escapeHTML(
+                                contractor.city
+                            )}"
+                            required>
+
+                    </div>
+
+
+                    <d
+                        /* =========================
+   SERVICES ADMIN
+========================= */
+
+function adminServices(){
+
+    return `
+
+        <div class="section-head">
+
+            <div>
+
+                <h2>
+                    إدارة الخدمات
+                </h2>
+
+                <p>
+                    إضافة وحذف الخدمات من داخل التطبيق.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div
+                    style="
+                        display:flex;
+                        gap:8px;
+                    ">
+
+                    <input
+                        id="newService"
+                        class="input"
+                        placeholder="اسم الخدمة الجديدة">
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="addService()">
+
+                        إضافة
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="chips"
+            style="
+                margin-top:14px;
+            ">
+
+            ${
+                data.services.length
+                    ? data.services
+                        .map(
+                            (service,index) => `
+
+                                <div
+                                    class="chip"
+                                    style="
+                                        display:flex;
+                                        align-items:center;
+                                        gap:8px;
+                                    ">
+
+                                    <span>
+                                        ${escapeHTML(
+                                            service
+                                        )}
+                                    </span>
+
+                                    <button
+                                        style="
+                                            border:0;
+                                            background:none;
+                                            color:var(--danger);
+                                            font-weight:950;
+                                        "
+                                        onclick="
+                                            deleteService(
+                                                ${index}
+                                            )
+                                        ">
+
+                                        ×
+
+                                    </button>
+
+                                </div>
+
+                            `
+                        )
+                        .join("")
+                    : ""
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+function addService(){
+
+    const input =
+        document.getElementById(
+            "newService"
+        );
+
+
+    if(!input) return;
+
+
+    const value =
+        input.value.trim();
+
+
+    if(!value){
+
+        showToast(
+            "اكتب اسم الخدمة أولًا"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        data.services.includes(
+            value
+        )
+    ){
+
+        showToast(
+            "الخدمة موجودة بالفعل"
+        );
+
+        return;
+
+    }
+
+
+    data.services.push(
+        value
+    );
+
+
+    saveData();
+
+    renderAdmin(
+        "services"
+    );
+
+    renderHome();
+
+    showToast(
+        "تمت إضافة الخدمة"
+    );
+
+}
+
+
+function deleteService(index){
+
+    const service =
+        data.services[index];
+
+
+    if(!service) return;
+
+
+    if(
+        !confirm(
+            "حذف الخدمة: " +
+            service +
+            " ؟"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    data.services.splice(
+        index,
+        1
+    );
+
+
+    saveData();
+
+    renderAdmin(
+        "services"
+    );
+
+    renderHome();
+
+    showToast(
+        "تم حذف الخدمة"
+    );
+
+}
+
+
+/* =========================
+   APPEARANCE
+========================= */
+
+function adminAppearance(){
+
+    return `
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="section-head">
+
+                    <div>
+
+                        <h2>
+                            المظهر
+                        </h2>
+
+                        <p>
+                            التحكم بالألوان وأقسام الصفحة الرئيسية.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        اللون الأساسي
+                    </label>
+
+                    <input
+                        id="adminPrimary"
+                        class="input"
+                        type="color"
+                        value="${escapeHTML(
+                            data.settings.primary
+                        )}">
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        اللون الذهبي
+                    </label>
+
+                    <input
+                        id="adminGold"
+                        class="input"
+                        type="color"
+                        value="${escapeHTML(
+                            data.settings.gold
+                        )}">
+
+                </div>
+
+
+                <label
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:8px;
+                        margin-top:14px;
+                    ">
+
+                    <input
+                        type="checkbox"
+                        ${
+                            data.settings.showFeatured
+                                ? "checked"
+                                : ""
+                        }
+                        onchange="
+                            data.settings.showFeatured =
+                                this.checked;
+                            saveData();
+                            renderHome();
+                        ">
+
+                    إظهار المشاريع المميزة
+
+                </label>
+
+
+                <label
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:8px;
+                        margin-top:14px;
+                    ">
+
+                    <input
+                        type="checkbox"
+                        ${
+                            data.settings.showServices
+                                ? "checked"
+                                : ""
+                        }
+                        onchange="
+                            data.settings.showServices =
+                                this.checked;
+                            saveData();
+                            renderHome();
+                        ">
+
+                    إظهار الخدمات
+
+                </label>
+
+
+                <button
+                    class="btn btn-primary"
+                    style="
+                        margin-top:18px;
+                    "
+                    onclick="saveAppearance()">
+
+                    حفظ المظهر
+
+                </button>
 
             </div>
 
@@ -3622,909 +3519,743 @@ function openProject(id) {
 
     `;
 
+}
 
-    navigate(
-        "projectDetails"
+
+function saveAppearance(){
+
+    const primary =
+        document.getElementById(
+            "adminPrimary"
+        )?.value;
+
+
+    const gold =
+        document.getElementById(
+            "adminGold"
+        )?.value;
+
+
+    if(primary){
+
+        data.settings.primary =
+            primary;
+
+    }
+
+
+    if(gold){
+
+        data.settings.gold =
+            gold;
+
+    }
+
+
+    saveData();
+
+    applyTheme();
+
+    renderAdmin(
+        "appearance"
+    );
+
+    renderHome();
+
+    showToast(
+        "تم حفظ المظهر"
     );
 
 }
 
 
-/* =========================================
-   COMPANIES
-========================================= */
+/* =========================
+   CONTENT ADMIN
+========================= */
 
-function renderCompanies() {
-
-    const grid =
-        document.getElementById(
-            "companyGrid"
-        );
-
-
-    grid.innerHTML =
-        companies
-            .map(companyCard)
-            .join("");
-
-}
-
-
-function companyCard(company) {
-
-    const count =
-        projects.filter(
-            project =>
-                project.companyId ===
-                company.id
-        ).length;
-
+function adminContent(){
 
     return `
 
-        <article
-            class="company-card"
-            onclick="openCompany(${company.id})"
-        >
+        <div class="card">
 
-            <img
-                class="company-logo"
-                src="${company.logo}"
-                alt="${company.name}"
-                loading="lazy"
-            >
+            <div class="card-body">
 
+                <div class="section-head">
 
-            <h2 class="company-name">
-                ${company.name}
-            </h2>
+                    <div>
 
+                        <h2>
+                            تحرير النصوص
+                        </h2>
 
-            <div class="meta">
-                📍 ${company.location}
-            </div>
-
-
-            <div class="meta">
-                🏗 المشاريع:
-                ${count}
-            </div>
-
-        </article>
-
-    `;
-
-}
-
-
-/* =========================================
-   COMPANY DETAILS
-========================================= */
-
-function openCompany(id) {
-
-    const company =
-        companies.find(
-            item =>
-                item.id === id
-        );
-
-
-    if (!company) {
-        return;
-    }
-
-
-    state.selectedCompany =
-        company;
-
-
-    const companyProjects =
-        projects.filter(
-            project =>
-                project.companyId === id
-        );
-
-
-    const container =
-        document.getElementById(
-            "companyDetails"
-        );
-
-
-    container.innerHTML = `
-
-        <div class="detail-card">
-
-            <div class="detail-body">
-
-                <img
-                    class="company-logo"
-                    src="${company.logo}"
-                    alt="${company.name}"
-                >
-
-
-                <h1 class="detail-title">
-                    ${company.name}
-                </h1>
-
-
-                <div class="meta">
-                    📍 ${company.location}
-                </div>
-
-
-                <section
-                    class="detail-section"
-                >
-
-                    <h3>
-                        عن الشركة
-                    </h3>
-
-
-                    <p class="detail-description">
-                        ${company.description}
-                    </p>
-
-                </section>
-
-
-                <section
-                    class="detail-section"
-                >
-
-                    <h3>
-                        مشاريع الشركة
-                    </h3>
-
-
-                    <div
-                        class="grid"
-                        style="margin-top:15px;"
-                    >
-
-                        ${
-                            companyProjects.length
-
-                                ? companyProjects
-        /* =========================================
-   FILTERS
-========================================= */
-
-function openFilters() {
-
-    const select =
-        document.getElementById(
-            "filterCompany"
-        );
-
-
-    select.innerHTML = `
-
-        <option value="">
-            كل الشركات
-        </option>
-
-    `;
-
-
-    companies.forEach(
-        company => {
-
-            select.innerHTML += `
-
-                <option
-                    value="${company.id}"
-                >
-                    ${company.name}
-                </option>
-
-            `;
-
-        }
-    );
-
-
-    document
-        .getElementById(
-            "filterLocation"
-        )
-        .value =
-        state.filters.location;
-
-
-    document
-        .getElementById(
-            "filterStatus"
-        )
-        .value =
-        state.filters.status;
-
-
-    document
-        .getElementById(
-            "filterCompany"
-        )
-        .value =
-        state.filters.company;
-
-
-    document
-        .getElementById(
-            "filterModal"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-}
-
-
-function closeFilters() {
-
-    document
-        .getElementById(
-            "filterModal"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-}
-
-
-function resetFilters() {
-
-    document
-        .getElementById(
-            "filterLocation"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "filterStatus"
-        )
-        .value = "";
-
-
-    document
-        .getElementById(
-            "filterCompany"
-        )
-        .value = "";
-
-
-    state.filters = {
-
-        location:
-            "",
-
-        status:
-            "",
-
-        company:
-            ""
-
-    };
-
-
-    applyFilters();
-
-}
-
-
-function applyFilters() {
-
-    state.filters = {
-
-        location:
-            document
-                .getElementById(
-                    "filterLocation"
-                )
-                .value,
-
-        status:
-            document
-                .getElementById(
-                    "filterStatus"
-                )
-                .value,
-
-        company:
-            document
-                .getElementById(
-                    "filterCompany"
-                )
-                .value
-
-    };
-
-
-    const filtered =
-        projects.filter(
-            project => {
-
-
-                if (
-
-                    state.filters.location
-
-                    &&
-
-                    project.location !==
-                    state.filters.location
-
-                ) {
-
-                    return false;
-
-                }
-
-
-                if (
-
-                    state.filters.status
-
-                    &&
-
-                    project.status !==
-                    state.filters.status
-
-                ) {
-
-                    return false;
-
-                }
-
-
-                if (
-
-                    state.filters.company
-
-                    &&
-
-                    String(
-                        project.companyId
-                    )
-
-                    !==
-
-                    String(
-                        state.filters.company
-                    )
-
-                ) {
-
-                    return false;
-
-                }
-
-
-                return true;
-
-            }
-        );
-
-
-    closeFilters();
-
-
-    if (
-        state.currentPage ===
-        "search"
-    ) {
-
-        document
-            .getElementById(
-                "searchResults"
-            )
-            .innerHTML =
-
-            filtered.length
-
-                ? filtered
-                    .map(projectCard)
-                    .join("")
-
-                : `
-
-                    <div
-                        class="empty-state"
-                        style="grid-column:1/-1;"
-                    >
-
-                        <div class="empty-icon">
-                            📭
-                        </div>
-
-                        <h3>
-                            لا توجد نتائج
-                        </h3>
+                        <p>
+                            يمكنك تغيير النصوص الرئيسية من هنا.
+                        </p>
 
                     </div>
 
-                `;
+                </div>
 
-    }
 
-    else {
+                <div class="field">
 
-        renderProjects(
-            filtered
-        );
+                    <label>
+                        اسم التطبيق
+                    </label>
 
-    }
+                    <input
+                        id="contentAppName"
+                        class="input"
+                        value="${escapeHTML(
+                            data.settings.appName
+                        )}">
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        عنوان الصفحة الرئيسية
+                    </label>
+
+                    <input
+                        id="contentHeroTitle"
+                        class="input"
+                        value="${escapeHTML(
+                            data.settings.heroTitle
+                        )}">
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        وصف الصفحة الرئيسية
+                    </label>
+
+                    <textarea
+                        id="contentHeroDescription"
+                        class="input">${escapeHTML(
+                            data.settings.heroDescription
+                        )}</textarea>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="saveContent()">
+
+                    حفظ النصوص
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
 
-/* =========================================
-   PROFILE
-========================================= */
+function saveContent(){
 
-function renderProfile() {
-
-    if (!state.user) {
-        return;
-    }
+    data.settings.appName =
+        document.getElementById(
+            "contentAppName"
+        ).value.trim() ||
+        "فورسيزن";
 
 
-    document
-        .getElementById(
-            "profileName"
-        )
-        .textContent =
-        state.user.name;
+    data.settings.heroTitle =
+        document.getElementById(
+            "contentHeroTitle"
+        ).value.trim() ||
+        "كل مشروع يبدأ من هنا";
 
 
-    document
-        .getElementById(
-            "profilePhone"
-        )
-        .textContent =
-        state.user.phone;
-
-}
+    data.settings.heroDescription =
+        document.getElementById(
+            "contentHeroDescription"
+        ).value.trim();
 
 
-/* =========================================
-   LANGUAGE
-========================================= */
-
-function setLanguage(
-    language
-) {
-
-    state.language =
-        language;
+    document.title =
+        data.settings.appName;
 
 
-    localStorage.setItem(
-        "language",
-        language
+    saveData();
+
+    applyTheme();
+
+    renderHome();
+
+    renderAdmin(
+        "content"
     );
 
-
-    if (
-        language ===
-        "en"
-    ) {
-
-        document.documentElement.lang =
-            "en";
-
-
-        document.documentElement.dir =
-            "ltr";
-
-
-        document.title =
-            "Moqawelati";
-
-
-        document
-            .getElementById(
-                "brandName"
-            )
-            .textContent =
-            "Moqawelati";
-
-
-        document
-            .getElementById(
-                "currentLanguage"
-            )
-            .textContent =
-            "English";
-
-
-        alert(
-            "تم تغيير اللغة. بعض النصوص في هذه النسخة التجريبية ما زالت بالعربية."
-        );
-
-    }
-
-    else {
-
-        document.documentElement.lang =
-            "ar";
-
-
-        document.documentElement.dir =
-            "rtl";
-
-
-        document.title =
-            "مقاولاتي";
-
-
-        document
-            .getElementById(
-                "brandName"
-            )
-            .textContent =
-            "مقاولاتي";
-
-
-        document
-            .getElementById(
-                "currentLanguage"
-            )
-            .textContent =
-            "العربية";
-
-    }
-
-
-    navigate(
-        "profile"
+    showToast(
+        "تم حفظ النصوص"
     );
 
 }
 
 
-/* =========================================
-   ABOUT
-========================================= */
+/* =========================
+   ADMIN NOTIFICATIONS
+========================= */
 
-function showAbout() {
+function adminNotifications(){
 
-    document
-        .getElementById(
-            "generalModalTitle"
-        )
-        .textContent =
-        "عن التطبيق";
+    return `
 
+        <div class="section-head">
 
-    document
-        .getElementById(
-            "generalModalBody"
-        )
-        .innerHTML = `
+            <div>
 
-            <div
-                style="line-height:2;"
-            >
+                <h2>
+                    إدارة الإشعارات
+                </h2>
 
-                <h3>
-                    مقاولاتي
-                </h3>
-
-
-                <p
-                    style="
-                        color:var(--muted);
-                        margin-top:8px;
-                    "
-                >
-                    منصة تجريبية لاستعراض
-                    المشاريع والشركات في مجال
-                    المقاولات.
-                </p>
-
-
-                <p
-                    style="margin-top:12px;"
-                >
-
-                    الإصدار التجريبي:
-
-                    <strong>
-                        1.0.0
-                    </strong>
-
+                <p>
+                    إرسال إشعار يظهر لجميع مستخدمي هذا المتصفح.
                 </p>
 
             </div>
 
-        `;
+        </div>
 
 
-    document
-        .getElementById(
-            "generalModal"
-        )
-        .classList.remove(
-            "hidden"
-        );
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="field">
+
+                    <label>
+                        عنوان الإشعار
+                    </label>
+
+                    <input
+                        id="adminNotificationTitle"
+                        class="input"
+                        placeholder="عنوان الإشعار">
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        نص الإشعار
+                    </label>
+
+                    <textarea
+                        id="adminNotificationText"
+                        class="input"
+                        placeholder="اكتب نص الإشعار..."></textarea>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="
+                        publishNotification()
+                    ">
+
+                    نشر الإشعار
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            style="
+                margin-top:15px;
+            ">
+
+            ${
+                data.notifications.length
+                    ? data.notifications
+                        .map(
+                            notification => `
+
+                                <div
+                                    class="card"
+                                    style="
+                                        margin-bottom:10px;
+                                    ">
+
+                                    <div class="card-body">
+
+                                        <div class="card-title">
+
+                                            ${escapeHTML(
+                                                notification.title
+                                            )}
+
+                                        </div>
+
+                                        <p
+                                            class="card-description">
+
+                                            ${escapeHTML(
+                                                notification.text
+                                            )}
+
+                                        </p>
+
+                                        <button
+                                            class="btn btn-danger btn-small"
+                                            style="
+                                                margin-top:10px;
+                                            "
+                                            onclick="
+                                                deleteNotification(
+                                                    ${notification.id}
+                                                )
+                                            ">
+
+                                            حذف
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            `
+                        )
+                        .join("")
+                    : emptyState(
+                        "لا توجد إشعارات"
+                    )
+            }
+
+        </div>
+
+    `;
 
 }
 
 
-function closeGeneralModal() {
+function publishNotification(){
 
-    document
-        .getElementById(
-            "generalModal"
-        )
-        .classList.add(
-            "hidden"
+    const title =
+        document.getElementById(
+            "adminNotificationTitle"
+        )?.value.trim();
+
+
+    const text =
+        document.getElementById(
+            "adminNotificationText"
+        )?.value.trim();
+
+
+    if(!title || !text){
+
+        showToast(
+            "أدخل عنوان الإشعار ونصه"
         );
 
-}
-
-
-/* =========================================
-   LOGOUT
-========================================= */
-
-function logout() {
-
-    const confirmed =
-        confirm(
-            "هل أنت متأكد من تسجيل الخروج؟"
-        );
-
-
-    if (!confirmed) {
         return;
+
     }
 
 
-    localStorage.removeItem(
-        "user"
+    data.notifications.unshift({
+
+        id:uid(),
+
+        title:title,
+
+        text:text,
+
+        date:"الآن",
+
+        read:false
+
+    });
+
+
+    saveData();
+
+    renderAdmin(
+        "notifications"
     );
 
+    renderNotifications();
 
-    state.user =
-        null;
+    updateNotificationDot();
 
-
-    document
-        .getElementById(
-            "app"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "authScreen"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "phoneStep"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "otpStep"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "phoneInput"
-        )
-        .value =
-        "";
+    showToast(
+        "تم نشر الإشعار"
+    );
 
 }
 
 
-/* =========================================
-   OTP INPUT
-========================================= */
+function deleteNotification(id){
 
-document
-    .querySelectorAll(
-        ".otp-input"
-    )
-    .forEach(
-        (
-            input,
-            index,
-            inputs
-        ) => {
+    data.notifications =
+        data.notifications.filter(
+            notification =>
+                notification.id !== id
+        );
 
 
-            input.addEventListener(
-                "input",
-                () => {
+    saveData();
 
-                    input.value =
-                        input.value
-                            .replace(
-                                /\D/g,
-                                ""
-                            )
-                            .slice(
-                                0,
-                                1
-                            );
+    renderAdmin(
+        "notifications"
+    );
+
+    renderNotifications();
+
+    updateNotificationDot();
+
+}
 
 
-                    if (
+/* =========================
+   DATA MANAGEMENT
+========================= */
 
-                        input.value
+function adminData(){
 
-                        &&
+    return `
 
-                        index <
-                        inputs.length - 1
+        <div class="card">
 
-                    ) {
+            <div class="card-body">
 
-                        inputs[
-                            index + 1
-                        ].focus();
+                <div class="section-head">
 
-                    }
+                    <div>
+
+                        <h2>
+                            إدارة البيانات
+                        </h2>
+
+                        <p>
+                            النسخ الاحتياطي والاستعادة وإعادة الضبط.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="notice">
+
+                    يمكنك حفظ نسخة JSON من بيانات التطبيق
+                    ثم استعادتها لاحقًا.
+
+                </div>
+
+
+                <div class="card-actions">
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="exportData()">
+
+                        تصدير نسخة
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-outline"
+                        onclick="
+                            document
+                                .getElementById(
+                                    'importFile'
+                                )
+                                .click()
+                        ">
+
+                        استيراد نسخة
+
+                    </button>
+
+                </div>
+
+
+                <input
+                    id="importFile"
+                    type="file"
+                    accept=".json,application/json"
+                    class="hidden"
+                    onchange="importData(event)">
+
+
+                <button
+                    class="btn btn-danger"
+                    style="
+                        width:100%;
+                        margin-top:14px;
+                    "
+                    onclick="resetAppData()">
+
+                    إعادة البيانات الافتراضية
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function exportData(){
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "four-seasons-backup.json";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+
+    showToast(
+        "تم تصدير النسخة الاحتياطية"
+    );
+
+}
+
+
+function importData(event){
+
+    const file =
+        event.target.files?.[0];
+
+
+    if(!file) return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(){
+
+            try{
+
+                const imported =
+                    JSON.parse(
+                        reader.result
+                    );
+
+
+                if(
+                    !imported ||
+                    typeof imported !==
+                    "object"
+                ){
+
+                    throw new Error(
+                        "Invalid data"
+                    );
 
                 }
-            );
 
 
-            input.addEventListener(
-                "keydown",
-                event => {
+                data =
+                    mergeData(
+                        DEFAULT_DATA,
+                        imported
+                    );
 
-                    if (
 
-                        event.key ===
-                        "Backspace"
+                saveData();
 
-                        &&
+                applyTheme();
 
-                        !input.value
+                renderHome();
 
-                        &&
+                renderAdmin(
+                    "data"
+                );
 
-                        index > 0
+                showToast(
+                    "تم استيراد البيانات"
+                );
 
-                    ) {
 
-                        inputs[
-                            index - 1
-                        ].focus();
+            }catch(error){
 
-                    }
+                console.error(
+                    error
+                );
 
-                }
-            );
+                showToast(
+                    "ملف النسخة غير صالح"
+                );
 
-        }
+            }
+
+
+            event.target.value = "";
+
+        };
+
+
+    reader.readAsText(
+        file
     );
 
+}
 
-/* =========================================
-   MODAL OUTSIDE CLICK
-========================================= */
 
-document
-    .getElementById(
-        "filterModal"
-    )
-    .addEventListener(
-        "click",
-        closeFilters
+function resetAppData(){
+
+    if(
+        !confirm(
+            "سيتم حذف التعديلات المحلية وإعادة التطبيق للوضع الافتراضي. هل أنت متأكد؟"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    data =
+        structuredCloneSafe(
+            DEFAULT_DATA
+        );
+
+
+    saveData();
+
+    applyTheme();
+
+    renderHome();
+
+    renderAdmin(
+        "dashboard"
     );
-
-
-document
-    .getElementById(
-        "generalModal"
-    )
-    .addEventListener(
-        "click",
-        closeGeneralModal
-    );
-
-
-/* =========================================
-   INITIALIZATION
-========================================= */
-
-function initializeApp() {
 
     renderProjects();
 
+    renderContractors();
 
-    renderCompanies();
+    renderFavorites();
 
+    renderNotifications();
 
-    renderProfile();
-
-
-    const savedUser =
-        localStorage.getItem(
-            "user"
-        );
-
-
-    setTimeout(
-        () => {
-
-            document
-                .getElementById(
-                    "splash"
-                )
-                .classList.add(
-                    "hidden"
-                );
-
-
-            if (savedUser) {
-
-                document
-                    .getElementById(
-                        "app"
-                    )
-                    .classList.remove(
-                        "hidden"
-                    );
-
-
-                navigate(
-                    "home"
-                );
-
-            }
-
-            else {
-
-                document
-                    .getElementById(
-                        "authScreen"
-                    )
-                    .classList.remove(
-                        "hidden"
-                    );
-
-            }
-
-        },
-        1200
+    showToast(
+        "تمت إعادة البيانات الافتراضية"
     );
 
 }
 
 
-initializeApp();
+/* =========================
+   KEYBOARD
+========================= */
 
-</script>
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key ===
+            "Escape"
+        ){
+
+            closeModal();
+
+        }
+
+    }
+);
 
 
-</body>
+/* =========================
+   START APPLICATION
+========================= */
 
-</html>               
+applyTheme();
+
+renderHome();
+
+renderProjects();
+
+renderContractors();
+
+renderFavorites();
+
+renderNotifications();
+
+updateNotificationDot();
+
+
+/* =========================
+   SAFETY
+========================= */
+
+window.addEventListener(
+    "error",
+    function(event){
+
+        console
