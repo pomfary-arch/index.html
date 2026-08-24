@@ -3,12 +3,13 @@ import re
 import shutil
 import uuid
 import glob
+import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaVideo, InputMediaPhoto
 import yt_dlp
 
 # ==========================================
-# 🔑 بيانات البوت المحدثة
+# 🔑 بيانات البوت الأساسية
 API_ID = 27040406
 API_HASH = "e1655170342494389f8e634ae2913d05"
 BOT_TOKEN = "8820185149:AAFPwPClb0Do_zSGRLwoUaxHnBmw5hTREDM"
@@ -19,14 +20,14 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 @app.on_message(filters.command("start"))
 def start(client, message):
     message.reply_text(
-        "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق! 🚀🔥\n\n"
-        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب، صور...) وسأقوم بتحميله فوراً."
+        "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق 🚀🔥\n\n"
+        "أرسل لي أي رابط (فيديو، صور إنستغرام، تيك توك، يوتيوب، موسيقى، قصة Story) وسأقوم بتحميله فوراً."
     )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
 def handle_link(client, message):
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 تحميل الفيديو/الوسائط", callback_data="dl_media")],
+        [InlineKeyboardButton("🎬 تحميل الفيديو / الوسائط / الصور", callback_data="dl_media")],
         [InlineKeyboardButton("🎵 استخراج الصوت (MP3)", callback_data="dl_audio")]
     ])
     message.reply_text("تم لقط الرابط بنجاح! اختر ماذا تريد استخراجه 👇", reply_markup=keyboard, reply_to_message_id=message.id)
@@ -42,40 +43,42 @@ def handle_callback(client, callback_query):
         return
 
     mode = "media" if callback_query.data == "dl_media" else "audio"
-    msg.edit_text("⏳ جاري التحميل والمعالجة، يرجى الانتظار...")
+    msg.edit_text("⏳ جاري سحب وتحميل الملفات (فيديو، صور، أو صوت)، يرجى الانتظار...")
     
     task_id = str(uuid.uuid4())
     download_dir = f"downloads/{task_id}"
     os.makedirs(download_dir, exist_ok=True)
 
     try:
-        ydl_opts = {
-            'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
-            'quiet': True,
-            'noplaylist': False,
-            'fixup': 'detect_or_warn',
-            'writethumbnail': True,  # تفعيل سحب الصور المصغرة والملفات المرفقة
-            'extract_flat': False,
-        }
-        
         if mode == "audio":
-            ydl_opts['format'] = 'bestaudio/best'
-            ydl_opts['postprocessors'] = [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
-        else:
-            ydl_opts['format'] = 'best/bestvideo+bestaudio/best'
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
+            ydl_opts = {
+                'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
+                'format': 'bestaudio/best',
+                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
+                'quiet': True
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
-            except Exception as e:
-                # محاولة ثانية بصيغة بديلة في حال فشل التحميل العادي للصور أو المنشورات الخاصة
-                pass
+        else:
+            # محاولة التحميل عبر yt_dlp أولاً (للفيديوهات والموسيقى والروابط الداعمة)
+            success_yt = True
+            try:
+                ydl_opts = {
+                    'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
+                    'format': 'best/bestvideo+bestaudio/best',
+                    'quiet': True,
+                    'noplaylist': False
+                }
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([url])
+            except Exception:
+                success_yt = False
 
-        # البحث الشامل في المجلد عن أي ملف (فيديو، صورة، صوت)
+            # إذا فشل yt_dlp (لأن الرابط صور أو منشور خاص أو قصة Story)، يتم التحميل عبر gallery-dl الفعال للصور
+            if not success_yt or not os.listdir(download_dir):
+                subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # البحث الشامل في المجلد عن كل الملفات (صور، فيديوهات، صوتيات)
         files = []
         for root, dirs, filenames in os.walk(download_dir):
             for filename in filenames:
@@ -84,7 +87,7 @@ def handle_callback(client, callback_query):
         files = list(set(files))
         
         if not files:
-            msg.edit_text("❌ لم يتم العثور على ملفات. تأكد أن الرابط عام وليس لحساب خاص أو قصة (Story).")
+            msg.edit_text("❌ لم يتم العثور على ملفات. تأكد أن الرابط عام وصحيح.")
             return
 
         media_group = []
@@ -96,7 +99,7 @@ def handle_callback(client, callback_query):
                 media_group.append(InputMediaVideo(file))
             elif ext in ['jpg', 'jpeg', 'png', 'webp', 'jfif']:
                 media_group.append(InputMediaPhoto(file))
-            elif ext in ['mp3', 'm4a', 'wav', 'aac', 'opus']:
+            elif ext in ['mp3', 'm4a', 'wav', 'aac', 'opus', 'flac']:
                 audio_files.append(file)
 
         if mode == "audio" or audio_files:
@@ -107,7 +110,7 @@ def handle_callback(client, callback_query):
         elif len(media_group) == 1:
             item = media_group[0]
             if isinstance(item, InputMediaVideo):
-                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو الخاص بك!")
+                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو أو القصة الخاصة بك!")
             elif isinstance(item, InputMediaPhoto):
                 client.send_photo(msg.chat.id, item.media, caption="🖼 تفضل الصورة الخاصة بك!")
             msg.delete()
@@ -115,14 +118,14 @@ def handle_callback(client, callback_query):
         elif len(media_group) > 1:
             for i in range(0, len(media_group), 10):
                 client.send_media_group(msg.chat.id, media_group[i:i+10])
-            client.send_message(msg.chat.id, "✅ تم تنزيل جميع الملفات والصور بنجاح!", reply_to_message_id=msg.reply_to_message.id)
+            client.send_message(msg.chat.id, "✅ تم تنزيل جميع الصور والملفات بنجاح!", reply_to_message_id=msg.reply_to_message.id)
             msg.delete()
             
         else:
             msg.edit_text("❌ الملفات المحملة بصيغة غير مدعومة.")
             
     except Exception as e:
-        msg.edit_text(f"❌ حدث خطأ أثناء التحميل: {str(e)[:100]}")
+        msg.edit_text(f"❌ حدث خطأ أثناء المعالجة. تأكد أن الرابط عام وغير محمي.")
     finally:
         shutil.rmtree(download_dir, ignore_errors=True)
 
