@@ -50,7 +50,6 @@ def handle_callback(client, callback_query):
     os.makedirs(download_dir, exist_ok=True)
 
     try:
-        # محاولة التحميل باستخدام yt-dlp أولاً (للفيديوهات والصوتيات)
         if mode == "audio":
             ydl_opts = {
                 'outtmpl': f"{download_dir}/%(title)s.%(ext)s",
@@ -71,10 +70,8 @@ def handle_callback(client, callback_query):
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
             except Exception:
-                # إذا فشل yt-dlp (لأن الرابط صور وليس فيديو)، نقوم بتحميله تلقائياً عبر gallery-dl
                 subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # جمع الملفات المحملة
         files = glob.glob(f"{download_dir}/**/*", recursive=True) + glob.glob(f"{download_dir}/*")
         files = list(set([f for f in files if os.path.isfile(f)]))
         
@@ -122,4 +119,3 @@ def handle_callback(client, callback_query):
         shutil.rmtree(download_dir, ignore_errors=True)
 
 app.run()
-        
