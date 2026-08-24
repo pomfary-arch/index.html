@@ -8,10 +8,10 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedi
 import yt_dlp
 
 # ==========================================
-# 🔑 بيانات البوت الأساسية
+# 🔑 بيانات البوت والتوكن الصحيح
 API_ID = 27040406
 API_HASH = "e1655170342494389f8e634ae2913d05"
-BOT_TOKEN = "7759556272:AAG23J5UfD3fD9v-5o7c1y3z9Xy4v2m1n0A"
+BOT_TOKEN = "8820185149:AAFPwPClb0Do_zSGRLwoUaxHnBmw5hTREDM"
 # ==========================================
 
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -65,13 +65,12 @@ def handle_callback(client, callback_query):
                 'preferredquality': '192',
             }]
         else:
-            # إعدادات تضمن جلب الوسائط بأعلى جودة وسحب الصور المرفقة
             ydl_opts['format'] = 'best/bestvideo+bestaudio/best'
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # البحث عن كافة الملفات المُحمّلة بشكل شامل داخل المجلد
+        # البحث الشامل عن جميع الملفات المحملة (صور، فيديوهات، صوتيات)
         files = []
         for root, dirs, filenames in os.walk(download_dir):
             for filename in filenames:
@@ -109,10 +108,9 @@ def handle_callback(client, callback_query):
             msg.delete()
             
         elif len(media_group) > 1:
-            # إرسال الصور والفيديوهات المتعددة كألبوم دفعة واحدة
             for i in range(0, len(media_group), 10):
                 client.send_media_group(msg.chat.id, media_group[i:i+10])
-            client.send_message(msg.chat.id, "✅ تم تنزيل جميع الملفات بنجاح!", reply_to_message_id=msg.reply_to_message.id)
+            client.send_message(msg.chat.id, "✅ تم تنزيل جميع الملفات والصور بنجاح!", reply_to_message_id=msg.reply_to_message.id)
             msg.delete()
             
         else:
