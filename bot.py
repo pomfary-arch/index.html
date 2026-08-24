@@ -6,6 +6,7 @@ import glob
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaVideo, InputMediaPhoto
 import yt_dlp
+import subprocess
 
 # ==========================================
 # 🔑 بيانات البوت الأساسية
@@ -16,34 +17,11 @@ BOT_TOKEN = "7759556272:AAG23J5UfD3fD9v-5o7c1y3z9Xy4v2m1n0A"
 
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-def get_ydl_options(task_id, mode="video"):
-    options = {
-        'outtmpl': f"downloads/{task_id}/%(id)s_%(title)s.%(ext)s",
-        'quiet': True,
-        'no_warnings': True,
-        'noplaylist': False, # ضروري جداً لسحب كل الصور والفيديوهات من المنشورات المتعددة
-        'writeautomaticsub': False,
-    }
-    
-    if mode == "audio":
-        options['format'] = 'bestaudio/best'
-        options['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }]
-    else:
-        # إعدادات ذكية تقبل الفيديوهات والصور وتتجاوز القيود
-        options['format'] = 'bestvideo+bestaudio/best'
-        options['extract_flat'] = False
-        
-    return options
-
 @app.on_message(filters.command("start"))
 def start(client, message):
     message.reply_text(
         "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق! 🚀🔥\n\n"
-        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب، فيسبوك، صور أو فيديوهات) وسأتعامل معه فوراً."
+        "أرسل لي أي رابط (فيديو أو صور من تيك توك، إنستغرام، يوتيوب...) وسأقوم بتحميله فوراً."
     )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
@@ -65,26 +43,47 @@ def handle_callback(client, callback_query):
         return
 
     mode = "media" if callback_query.data == "dl_media" else "audio"
-    msg.edit_text("⏳ جاري التحميل والمعالجة (فيديوهات أو صور)، يرجى الانتظار...")
+    msg.edit_text("⏳ جاري التحميل والمعالجة (سواء صور أو فيديوهات)، يرجى الانتظار...")
     
     task_id = str(uuid.uuid4())
-    os.makedirs(f"downloads/{task_id}", exist_ok=True)
-    opts = get_ydl_options(task_id, mode)
+    download_dir = f"downloads/{task_id}"
+    os.makedirs(download_dir, exist_ok=True)
 
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
+        # محاولة التحميل باستخدام yt-dlp أولاً (للفيديوهات والصوتيات)
+        if mode == "audio":
+            ydl_opts = {
+                'outtmpl': f"{download_dir}/%(title)s.%(ext)s",
+                'format': 'bestaudio/best',
+                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
+                'quiet': True
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([url])
+        else:
+            ydl_opts = {
+                'outtmpl': f"{download_dir}/%(title)s.%(ext)s",
+                'format': 'bestvideo+bestaudio/best/best',
+                'quiet': True,
+                'noplaylist': False
+            }
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([url])
+            except Exception:
+                # إذا فشل yt-dlp (لأن الرابط صور وليس فيديو)، نقوم بتحميله تلقائياً عبر gallery-dl
+                subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        files = glob.glob(f"downloads/{task_id}/**/*", recursive=True) + glob.glob(f"downloads/{task_id}/*")
+        # جمع الملفات المحملة
+        files = glob.glob(f"{download_dir}/**/*", recursive=True) + glob.glob(f"{download_dir}/*")
         files = list(set([f for f in files if os.path.isfile(f)]))
         
         if not files:
-            msg.edit_text("❌ لم يتم العثور على ملفات قابلة للتحميل. تأكد أن الرابط عام وليس لحساب خاص.")
+            msg.edit_text("❌ لم يتم العثور على ملفات. تأكد أن الرابط عام وليس لحساب خاص.")
             return
 
         media_group = []
         audio_files = []
-        other_files = []
         
         for file in files:
             ext = file.split('.')[-1].lower()
@@ -94,13 +93,10 @@ def handle_callback(client, callback_query):
                 media_group.append(InputMediaPhoto(file))
             elif ext in ['mp3', 'm4a', 'wav', 'aac', 'opus']:
                 audio_files.append(file)
-            else:
-                other_files.append(file)
 
-        # التعامل مع وضع استخراج الصوت
-        if mode == "audio" or (audio_files and not media_group):
+        if mode == "audio" or audio_files:
             for audio in audio_files:
-                client.send_audio(msg.chat.id, audio, caption="🎵 تم استخراج الصوت وصقله بنجاح!")
+                client.send_audio(msg.chat.id, audio, caption="🎵 تم استخراج الصوت بنجاح!")
             msg.delete()
             
         elif len(media_group) == 1:
@@ -112,18 +108,18 @@ def handle_callback(client, callback_query):
             msg.delete()
             
         elif len(media_group) > 1:
-            # تقسيم الألبومات الكبيرة إلى دفعات (تليجرام يسمح بـ 10 صور كحد أقصى في المرة الواحدة)
             for i in range(0, len(media_group), 10):
                 client.send_media_group(msg.chat.id, media_group[i:i+10])
             client.send_message(msg.chat.id, "✅ تم تنزيل ألبوم الصور/الفيديوهات بالكامل!", reply_to_message_id=msg.reply_to_message.id)
             msg.delete()
             
         else:
-            msg.edit_text("❌ تم التحميل ولكن الملفات بصيغة غير مدعومة للعرض المباشر.")
+            msg.edit_text("❌ الملفات المحملة بصيغة غير مدعومة.")
             
     except Exception as e:
         msg.edit_text(f"❌ حدث خطأ أثناء المعالجة. تأكد أن الرابط صحيح وعام.")
     finally:
-        shutil.rmtree(f"downloads/{task_id}", ignore_errors=True)
+        shutil.rmtree(download_dir, ignore_errors=True)
 
 app.run()
+        
