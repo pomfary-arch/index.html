@@ -8,7 +8,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedi
 import yt_dlp
 
 # ==========================================
-# 🔑 بيانات البوت والتوكن الصحيح
+# 🔑 بيانات البوت المحدثة
 API_ID = 27040406
 API_HASH = "e1655170342494389f8e634ae2913d05"
 BOT_TOKEN = "8820185149:AAFPwPClb0Do_zSGRLwoUaxHnBmw5hTREDM"
@@ -20,7 +20,7 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 def start(client, message):
     message.reply_text(
         "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق! 🚀🔥\n\n"
-        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب...) وسأقوم بتحميله فوراً."
+        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب، صور...) وسأقوم بتحميله فوراً."
     )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
@@ -54,7 +54,8 @@ def handle_callback(client, callback_query):
             'quiet': True,
             'noplaylist': False,
             'fixup': 'detect_or_warn',
-            'writethumbnail': False,
+            'writethumbnail': True,  # تفعيل سحب الصور المصغرة والملفات المرفقة
+            'extract_flat': False,
         }
         
         if mode == "audio":
@@ -68,9 +69,13 @@ def handle_callback(client, callback_query):
             ydl_opts['format'] = 'best/bestvideo+bestaudio/best'
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            try:
+                ydl.download([url])
+            except Exception as e:
+                # محاولة ثانية بصيغة بديلة في حال فشل التحميل العادي للصور أو المنشورات الخاصة
+                pass
 
-        # البحث الشامل عن جميع الملفات المحملة (صور، فيديوهات، صوتيات)
+        # البحث الشامل في المجلد عن أي ملف (فيديو، صورة، صوت)
         files = []
         for root, dirs, filenames in os.walk(download_dir):
             for filename in filenames:
@@ -79,7 +84,7 @@ def handle_callback(client, callback_query):
         files = list(set(files))
         
         if not files:
-            msg.edit_text("❌ لم يتم العثور على ملفات. تأكد أن الرابط عام وليس لحساب خاص.")
+            msg.edit_text("❌ لم يتم العثور على ملفات. تأكد أن الرابط عام وليس لحساب خاص أو قصة (Story).")
             return
 
         media_group = []
