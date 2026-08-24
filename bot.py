@@ -21,13 +21,13 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 def start(client, message):
     message.reply_text(
         "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق 🚀🔥\n\n"
-        "أرسل لي أي رابط (فيديو، صور إنستغرام، تيك توك، يوتيوب، موسيقى، قصة Story) وسأقوم بتحميله فوراً."
+        "أرسل لي أي رابط (فيديو، صور إنستغرام، تيك توك، يوتيوب...) وسأقوم بتحميله فوراً."
     )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
 def handle_link(client, message):
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 تحميل الفيديو / الوسائط / الصور", callback_data="dl_media")],
+        [InlineKeyboardButton("🎬 تحميل الوسائط / الصور / الفيديوهات", callback_data="dl_media")],
         [InlineKeyboardButton("🎵 استخراج الصوت (MP3)", callback_data="dl_audio")]
     ])
     message.reply_text("تم لقط الرابط بنجاح! اختر ماذا تريد استخراجه 👇", reply_markup=keyboard, reply_to_message_id=message.id)
@@ -43,42 +43,42 @@ def handle_callback(client, callback_query):
         return
 
     mode = "media" if callback_query.data == "dl_media" else "audio"
-    msg.edit_text("⏳ جاري سحب وتحميل الملفات (فيديو، صور، أو صوت)، يرجى الانتظار...")
+    msg.edit_text("⏳ جاري سحب الملفات بدقة عالية، يرجى الانتظار...", reply_markup=None)
     
     task_id = str(uuid.uuid4())
     download_dir = f"downloads/{task_id}"
     os.makedirs(download_dir, exist_ok=True)
 
     try:
-        if mode == "audio":
-            ydl_opts = {
-                'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
-                'format': 'bestaudio/best',
-                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
-                'quiet': True
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
-        else:
-            # محاولة التحميل عبر yt_dlp أولاً (للفيديوهات والموسيقى والروابط الداعمة)
-            success_yt = True
-            try:
+        # إذا كان الرابط انستغرام أو طلب صوت
+        if "instagram.com" in url or mode == "audio":
+            if mode == "audio":
                 ydl_opts = {
                     'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
-                    'format': 'best/bestvideo+bestaudio/best',
-                    'quiet': True,
-                    'noplaylist': False
+                    'format': 'bestaudio/best',
+                    'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
+                    'quiet': True
                 }
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
+            else:
+                # استخدام gallery-dl مباشرة لروابط انستغرام لضمان جلب الصور والفيديوهات والبوستات بدقة بدون أخطاء
+                subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # لباقي المنصات (يوتيوب، تيك توك، إلخ) نستخدم yt_dlp
+            ydl_opts = {
+                'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
+                'format': 'best/bestvideo+bestaudio/best',
+                'quiet': True,
+                'noplaylist': False
+            }
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([url])
             except Exception:
-                success_yt = False
-
-            # إذا فشل yt_dlp (لأن الرابط صور أو منشور خاص أو قصة Story)، يتم التحميل عبر gallery-dl الفعال للصور
-            if not success_yt or not os.listdir(download_dir):
                 subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # البحث الشامل في المجلد عن كل الملفات (صور، فيديوهات، صوتيات)
+        # البحث الشامل في المجلد عن كل الملفات المحملة
         files = []
         for root, dirs, filenames in os.walk(download_dir):
             for filename in filenames:
@@ -110,7 +110,7 @@ def handle_callback(client, callback_query):
         elif len(media_group) == 1:
             item = media_group[0]
             if isinstance(item, InputMediaVideo):
-                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو أو القصة الخاصة بك!")
+                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو الخاص بك!")
             elif isinstance(item, InputMediaPhoto):
                 client.send_photo(msg.chat.id, item.media, caption="🖼 تفضل الصورة الخاصة بك!")
             msg.delete()
@@ -125,7 +125,7 @@ def handle_callback(client, callback_query):
             msg.edit_text("❌ الملفات المحملة بصيغة غير مدعومة.")
             
     except Exception as e:
-        msg.edit_text(f"❌ حدث خطأ أثناء المعالجة. تأكد أن الرابط عام وغير محمي.")
+        msg.edit_text(f"❌ حدث خطأ أثناء المعالجة.")
     finally:
         shutil.rmtree(download_dir, ignore_errors=True)
 
