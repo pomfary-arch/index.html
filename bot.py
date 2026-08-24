@@ -8,7 +8,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedi
 import yt_dlp
 
 # ==========================================
-# 🔑 تم وضع بياناتك وجهوزية التوكن بالكامل هنا
+# 🔑 بيانات البوت الأساسية
 API_ID = 29630985
 API_HASH = "80f83737b46944e8bc9e7355fa989dfb"
 BOT_TOKEN = "7759556272:AAG23J5UfD3fD9v-5o7c1y3z9Xy4v2m1n0A"
@@ -18,10 +18,11 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 def get_ydl_options(task_id, mode="video"):
     options = {
-        'outtmpl': f"downloads/{task_id}/%(title)s.%(ext)s",
+        'outtmpl': f"downloads/{task_id}/%(id)s_%(title)s.%(ext)s",
         'quiet': True,
         'no_warnings': True,
-        'noplaylist': False,
+        'noplaylist': False, # ضروري جداً لسحب كل الصور والفيديوهات من المنشورات المتعددة
+        'writeautomaticsub': False,
     }
     
     if mode == "audio":
@@ -32,13 +33,18 @@ def get_ydl_options(task_id, mode="video"):
             'preferredquality': '192',
         }]
     else:
-        options['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+        # إعدادات ذكية تقبل الفيديوهات والصور وتتجاوز القيود
+        options['format'] = 'bestvideo+bestaudio/best'
+        options['extract_flat'] = False
         
     return options
 
 @app.on_message(filters.command("start"))
 def start(client, message):
-    message.reply_text("أهلاً بك يا علي جاسم في بوتك الشامل! 🚀\n\nأرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب، الخ...) وسأعطيك خيارات تحميل الفيديو، الصور، أو استخراج الصوت.")
+    message.reply_text(
+        "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق! 🚀🔥\n\n"
+        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب، فيسبوك، صور أو فيديوهات) وسأتعامل معه فوراً."
+    )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
 def handle_link(client, message):
@@ -46,7 +52,7 @@ def handle_link(client, message):
         [InlineKeyboardButton("🎬 تحميل فيديو / 🖼 صور", callback_data="dl_media")],
         [InlineKeyboardButton("🎵 استخراج الصوت (MP3)", callback_data="dl_audio")]
     ])
-    message.reply_text("لقطت الرابط! شنو تحب أنزل لك؟ 👇", reply_markup=keyboard, reply_to_message_id=message.id)
+    message.reply_text("تم لقط الرابط بنجاح! اختر ماذا تريد استخراجه 👇", reply_markup=keyboard, reply_to_message_id=message.id)
 
 @app.on_callback_query()
 def handle_callback(client, callback_query):
@@ -55,11 +61,11 @@ def handle_callback(client, callback_query):
     try:
         url = re.search(r"https?://[^\s]+", msg.reply_to_message.text).group(0)
     except:
-        msg.edit_text("❌ لم أتمكن من العثور على الرابط الأصلي.")
+        msg.edit_text("❌ عذراً، لم أتمكن من العثور على الرابط الأصلي.")
         return
 
     mode = "media" if callback_query.data == "dl_media" else "audio"
-    msg.edit_text("⏳ جاري التحميل والمعالجة، انتظر ثواني...")
+    msg.edit_text("⏳ جاري التحميل والمعالجة (فيديوهات أو صور)، يرجى الانتظار...")
     
     task_id = str(uuid.uuid4())
     os.makedirs(f"downloads/{task_id}", exist_ok=True)
@@ -69,50 +75,55 @@ def handle_callback(client, callback_query):
         with yt_dlp.YoutubeDL(opts) as ydl:
             ydl.download([url])
 
-        files = glob.glob(f"downloads/{task_id}/*")
+        files = glob.glob(f"downloads/{task_id}/**/*", recursive=True) + glob.glob(f"downloads/{task_id}/*")
+        files = list(set([f for f in files if os.path.isfile(f)]))
         
         if not files:
-            msg.edit_text("❌ حدث خطأ، إما أن الرابط خاص (Private) أو غير مدعوم.")
+            msg.edit_text("❌ لم يتم العثور على ملفات قابلة للتحميل. تأكد أن الرابط عام وليس لحساب خاص.")
             return
 
         media_group = []
         audio_files = []
+        other_files = []
         
         for file in files:
             ext = file.split('.')[-1].lower()
-            if ext in ['mp4', 'mkv', 'webm']:
+            if ext in ['mp4', 'mkv', 'webm', 'mov', 'm4v']:
                 media_group.append(InputMediaVideo(file))
-            elif ext in ['jpg', 'jpeg', 'png', 'webp']:
+            elif ext in ['jpg', 'jpeg', 'png', 'webp', 'jfif']:
                 media_group.append(InputMediaPhoto(file))
-            elif ext in ['mp3', 'm4a', 'wav']:
+            elif ext in ['mp3', 'm4a', 'wav', 'aac', 'opus']:
                 audio_files.append(file)
+            else:
+                other_files.append(file)
 
-        if mode == "audio" or audio_files:
+        # التعامل مع وضع استخراج الصوت
+        if mode == "audio" or (audio_files and not media_group):
             for audio in audio_files:
-                client.send_audio(msg.chat.id, audio, caption="🎵 تم استخراج الصوت بواسطة بوتك!")
+                client.send_audio(msg.chat.id, audio, caption="🎵 تم استخراج الصوت وصقله بنجاح!")
             msg.delete()
             
         elif len(media_group) == 1:
             item = media_group[0]
             if isinstance(item, InputMediaVideo):
-                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو!")
+                client.send_video(msg.chat.id, item.media, caption="🎬 تفضل الفيديو الخاص بك!")
             elif isinstance(item, InputMediaPhoto):
-                client.send_photo(msg.chat.id, item.media, caption="🖼 تفضل الصورة!")
+                client.send_photo(msg.chat.id, item.media, caption="🖼 تفضل الصورة الخاصة بك!")
             msg.delete()
             
         elif len(media_group) > 1:
+            # تقسيم الألبومات الكبيرة إلى دفعات (تليجرام يسمح بـ 10 صور كحد أقصى في المرة الواحدة)
             for i in range(0, len(media_group), 10):
                 client.send_media_group(msg.chat.id, media_group[i:i+10])
-            client.send_message(msg.chat.id, "✅ تم تحميل الألبوم بالكامل!", reply_to_message_id=msg.reply_to_message.id)
+            client.send_message(msg.chat.id, "✅ تم تنزيل ألبوم الصور/الفيديوهات بالكامل!", reply_to_message_id=msg.reply_to_message.id)
             msg.delete()
             
         else:
-            msg.edit_text("❌ تم التحميل ولكن بصيغة غير مدعومة للعرض المباشر.")
+            msg.edit_text("❌ تم التحميل ولكن الملفات بصيغة غير مدعومة للعرض المباشر.")
             
     except Exception as e:
-        msg.edit_text(f"❌ حدث خطأ أثناء التحميل، تأكد أن المنشور ليس خاصاً.")
+        msg.edit_text(f"❌ حدث خطأ أثناء المعالجة. تأكد أن الرابط صحيح وعام.")
     finally:
         shutil.rmtree(f"downloads/{task_id}", ignore_errors=True)
 
 app.run()
-                                  
