@@ -6,12 +6,11 @@ import glob
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaVideo, InputMediaPhoto
 import yt_dlp
-import subprocess
 
 # ==========================================
-# 🔑 بيانات البوت الأساسية
-API_ID = 29630985
-API_HASH = "80f83737b46944e8bc9e7355fa989dfb"
+# 🔑 بيانات البوت الأساسية المحدثة
+API_ID = 27040406
+API_HASH = "e1655170342494389f8e634ae2913d05"
 BOT_TOKEN = "7759556272:AAG23J5UfD3fD9v-5o7c1y3z9Xy4v2m1n0A"
 # ==========================================
 
@@ -21,13 +20,13 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 def start(client, message):
     message.reply_text(
         "أهلاً بك يا علي جاسم في بوت التحميل الشامل الخارق! 🚀🔥\n\n"
-        "أرسل لي أي رابط (فيديو أو صور من تيك توك، إنستغرام، يوتيوب...) وسأقوم بتحميله فوراً."
+        "أرسل لي أي رابط (تيك توك، إنستغرام، يوتيوب...) وسأقوم بتحميله فوراً."
     )
 
 @app.on_message(filters.text & filters.regex(r"https?://[^\s]+"))
 def handle_link(client, message):
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 تحميل فيديو / 🖼 صور", callback_data="dl_media")],
+        [InlineKeyboardButton("🎬 تحميل الفيديو/الوسائط", callback_data="dl_media")],
         [InlineKeyboardButton("🎵 استخراج الصوت (MP3)", callback_data="dl_audio")]
     ])
     message.reply_text("تم لقط الرابط بنجاح! اختر ماذا تريد استخراجه 👇", reply_markup=keyboard, reply_to_message_id=message.id)
@@ -43,34 +42,32 @@ def handle_callback(client, callback_query):
         return
 
     mode = "media" if callback_query.data == "dl_media" else "audio"
-    msg.edit_text("⏳ جاري التحميل والمعالجة (سواء صور أو فيديوهات)، يرجى الانتظار...")
+    msg.edit_text("⏳ جاري التحميل والمعالجة، يرجى الانتظار...")
     
     task_id = str(uuid.uuid4())
     download_dir = f"downloads/{task_id}"
     os.makedirs(download_dir, exist_ok=True)
 
     try:
+        ydl_opts = {
+            'outtmpl': f"{download_dir}/%(id)s_%(title)s.%(ext)s",
+            'quiet': True,
+            'noplaylist': False,
+            'fixup': 'detect_or_warn',
+        }
+        
         if mode == "audio":
-            ydl_opts = {
-                'outtmpl': f"{download_dir}/%(title)s.%(ext)s",
-                'format': 'bestaudio/best',
-                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
-                'quiet': True
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
+            ydl_opts['format'] = 'bestaudio/best'
+            ydl_opts['postprocessors'] = [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }]
         else:
-            ydl_opts = {
-                'outtmpl': f"{download_dir}/%(title)s.%(ext)s",
-                'format': 'bestvideo+bestaudio/best/best',
-                'quiet': True,
-                'noplaylist': False
-            }
-            try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([url])
-            except Exception:
-                subprocess.run(["gallery-dl", "--dest", download_dir, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            ydl_opts['format'] = 'best/bestvideo+bestaudio/best'
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
 
         files = glob.glob(f"{download_dir}/**/*", recursive=True) + glob.glob(f"{download_dir}/*")
         files = list(set([f for f in files if os.path.isfile(f)]))
@@ -84,7 +81,7 @@ def handle_callback(client, callback_query):
         
         for file in files:
             ext = file.split('.')[-1].lower()
-            if ext in ['mp4', 'mkv', 'webm', 'mov', 'm4v']:
+            if ext in ['mp4', 'mkv', 'webm', 'mov', 'm4v', 'avi']:
                 media_group.append(InputMediaVideo(file))
             elif ext in ['jpg', 'jpeg', 'png', 'webp', 'jfif']:
                 media_group.append(InputMediaPhoto(file))
@@ -107,15 +104,16 @@ def handle_callback(client, callback_query):
         elif len(media_group) > 1:
             for i in range(0, len(media_group), 10):
                 client.send_media_group(msg.chat.id, media_group[i:i+10])
-            client.send_message(msg.chat.id, "✅ تم تنزيل ألبوم الصور/الفيديوهات بالكامل!", reply_to_message_id=msg.reply_to_message.id)
+            client.send_message(msg.chat.id, "✅ تم تنزيل الملفات بالكامل!", reply_to_message_id=msg.reply_to_message.id)
             msg.delete()
             
         else:
             msg.edit_text("❌ الملفات المحملة بصيغة غير مدعومة.")
             
     except Exception as e:
-        msg.edit_text(f"❌ حدث خطأ أثناء المعالجة. تأكد أن الرابط صحيح وعام.")
+        msg.edit_text("❌ حدث خطأ أثناء التحميل. تأكد من صحة الرابط وأنه عام.")
     finally:
         shutil.rmtree(download_dir, ignore_errors=True)
 
 app.run()
+            
